@@ -16,3 +16,7 @@ pybabel compile -d translations
 cd app/
 pybabel update -i translations/messages.pot -d translations
 ```
+
+# User
+login as demo
+pw is 123
