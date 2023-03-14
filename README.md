@@ -2,6 +2,7 @@ work at other branch
 
 # How to create translation
 Run following commands
+
 edited by leo
 ```
 cd app/
