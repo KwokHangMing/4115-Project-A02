@@ -1,5 +1,5 @@
 
-# How to create translation
+# How **NOT** to create translation
 Run following commands
 ```
 cd app/
