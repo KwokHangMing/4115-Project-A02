@@ -1,0 +1,24 @@
+{% extends "base.html.j2" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+<form method="post" enctype="multipart/form-data">
+  <div>
+    <label for="item_id">Item:</label>
+    <select name="item_id" id="item_id">
+      {% for item in items %}
+        <option value="{{ item.id }}">{{ item.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="image">Image:</label>
+    <input type="file" name="image" id="image">
+  </div>
+  <button type="submit">Upload</button>
+</form>
+
+<!-- item.html -->
+<h1>{{ item.name }}</h1>
+<p>{{ item.description }}</p>
+{% for image in item.images %}
+  <img src="{{ url_for('static', filename='images/' + image.filename) }}">
+{% endfor %}

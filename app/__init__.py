@@ -10,11 +10,13 @@ from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_babel import Babel
-
+from flask_uploads import UploadSet, IMAGES, configure_uploads
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
+images = UploadSet('images', IMAGES)
+configure_uploads(app, images)
 migrate = Migrate(app, db)
 login = LoginManager()
 login.login_view = "login"

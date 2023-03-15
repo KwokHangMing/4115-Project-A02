@@ -189,3 +189,32 @@ def unfollow(username):
     db.session.commit()
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
+
+#our code here
+
+@app.route('/electronics')
+def electronics():
+    return render_template('electronics.html.j2', title=_('Electronics'))
+
+@app.route('/sell')
+def sell():
+    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog') )
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST' and 'image' in request.files:
+        file = request.files['image']
+        filename = images.save(file)
+        item_id = request.form['item_id']
+        image = Image(filename=filename, item_id=item_id)
+        db.session.add(image)
+        db.session.commit()
+        return redirect(url_for('view_item', item_id=item_id))
+    else:
+        items = Item.query.all()
+        return render_template('upload.html', items=items)
+
+@app.route('/item/<int:item_id>')
+def view_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    return render_template('item.html', item=item)
