@@ -3,11 +3,12 @@ from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
-from app import app, db
+from app import app, db, images
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post 
+from app.models import User, Post, Item, Image
 from app.email import send_password_reset_email
+
 
 
 @app.before_request
@@ -190,15 +191,41 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-#our code here
+# our code here
+
 
 @app.route('/electronics')
 def electronics():
     return render_template('electronics.html.j2', title=_('Electronics'))
 
+@app.route('/fashion')
+def fashion():
+    return render_template('fashion.html.j2', title=_('Fashion'))
+
+@app.route('/luxury')
+def luxury():
+    return render_template('luxury.html.j2', title=_('Luxury'))
+
+@app.route('/services')
+def services():
+    return render_template('services.html.j2', title=_('Services'))
+
+@app.route('/cars')
+def cars():
+    return render_template('cars.html.j2', title=_('Cars'))
+
+@app.route('/property')
+def property():
+    return render_template('property.html.j2', title=_('Properity'))
+
+@app.route('/all_categories')
+def all_categories():
+    return render_template('all_categories.html.j2', title=_('All Categories'))
+
 @app.route('/sell')
 def sell():
-    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog') )
+    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'))
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -211,11 +238,11 @@ def upload():
         db.session.commit()
         return redirect(url_for('view_item', item_id=item_id))
     else:
-        items = query.all()
-        items = avatar.query.all()
+        items = Item.query.all()
         return render_template('upload.html.j2', items=items)
+
 
 @app.route('/item/<int:item_id>')
 def view_item(item_id):
-    item = avatar.query.get_or_404(item_id)
+    item = Item.query.get_or_404(item_id)
     return render_template('item.html.j2', item=item)

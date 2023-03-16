@@ -24,7 +24,7 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    {# <li> 
+                    {# <li>
                          <a href="{{ url_for('index') }}">{{ _('Home') }}</a>
                      </li> #}
                     {# <li>
@@ -34,22 +34,22 @@
                         <a href="{{ url_for('electronics') }}">{{ _('Electronics') }}</a>
                     </li>
                     <li>
-                        {# <a href="{{ url_for('fashion') }}">{{ _('Fashion') }}</a> #}
+                        <a href="{{ url_for('fashion') }}">{{ _('Fashion') }}</a>
                     </li>
                     <li>
-                        {# <a href="{{ url_for('luxury') }}">{{ _('Luxury') }}</a> #}
+                        <a href="{{ url_for('luxury') }}">{{ _('Luxury') }}</a>
                     </li>
                     <li>
-                        {# <a href="{{ url_for('services') }}">{{ _('Services') }}</a> #}
+                        <a href="{{ url_for('services') }}">{{ _('Services') }}</a>
                     </li>
                     <li>
-                        {# <a href="{{ url_for('cars') }}">{{ _('Cars') }}</a> #}
+                        <a href="{{ url_for('cars') }}">{{ _('Cars') }}</a>
                     </li>
                     <li>
-                        {# <a href="{{ url_for('property') }}">{{ _('Property') }}</a> #}
+                        <a href="{{ url_for('property') }}">{{ _('Property') }}</a>
                     </li>
                     <li>
-                        {# <a href="{{ url_for('all_categories') }}">{{ _('All Categories') }}</a> #}
+                        <a href="{{ url_for('all_categories') }}">{{ _('All Categories') }}</a>
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
@@ -60,10 +60,6 @@
                         <li>
                             <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
                         </li>
-                        <li>
-                            <a href="{{ url_for('sell') }}">{{ _('Sell') }}</a>
-                        </li>
-                        
                     {% else %}
                         <li>
                             <a href="{{ url_for('user', username=current_user.username) }}">{{ _('Profile') }}</a>
@@ -71,10 +67,10 @@
                         <li>
                             <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
                         </li>
-                        <li>
-                            <a href="{{ url_for('sell') }}">{{ _('Sell') }}</a>
-                        </li>
                     {% endif %}
+                    <li>
+                        <a href="{{ url_for('sell') }}">{{ _('Sell') }}</a>
+                    </li>
                 </ul>
             </div>
         </div>

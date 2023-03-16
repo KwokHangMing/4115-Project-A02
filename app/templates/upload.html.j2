@@ -1,5 +1,6 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
 <form method="post" enctype="multipart/form-data">
   <div>
     <label for="item_id">Item:</label>
@@ -15,10 +16,4 @@
   </div>
   <button type="submit">Upload</button>
 </form>
-
-<!-- item.html -->
-<h1>{{ item.name }}</h1>
-<p>{{ item.description }}</p>
-{% for image in item.images %}
-  <img src="{{ url_for('static', filename='images/' + image.filename) }}">
-{% endfor %}
+{% endblock %}
