@@ -77,6 +77,7 @@ class User(UserMixin, db.Model):
         return User.query.get(id)
 
 
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))

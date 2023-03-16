@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post
+from app.models import User, Post 
 from app.email import send_password_reset_email
 
 
@@ -211,10 +211,11 @@ def upload():
         db.session.commit()
         return redirect(url_for('view_item', item_id=item_id))
     else:
-        items = Item.query.all()
-        return render_template('upload.html', items=items)
+        items = query.all()
+        items = avatar.query.all()
+        return render_template('upload.html.j2', items=items)
 
 @app.route('/item/<int:item_id>')
 def view_item(item_id):
-    item = Item.query.get_or_404(item_id)
-    return render_template('item.html', item=item)
+    item = avatar.query.get_or_404(item_id)
+    return render_template('item.html.j2', item=item)
