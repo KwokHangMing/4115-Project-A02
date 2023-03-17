@@ -20,3 +20,17 @@ pybabel update -i translations/messages.pot -d translations
 # User
 login as demo
 pw is 123
+
+# Flask-uploads
+
+In ```flask_uploads.py```
+
+Change
+```
+from werkzeug import secure_filename,FileStorage
+```
+to
+```
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import  FileStorage
+```
