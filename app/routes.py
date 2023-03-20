@@ -3,10 +3,10 @@ from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
-from app import app, db, images
+from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post, Item, Image
+from app.models import User, Post
 from app.email import send_password_reset_email
 
 
@@ -222,27 +222,36 @@ def property():
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
 
-@app.route('/sell')
+@app.route('/sell', methods=['GET', 'POST'])
 def sell():
-    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'))
+    # if request.method == 'POST':
+    #     title = request.form['title']
+    #     description = request.form['description']
+    #     price = request.form['price']
+    #     category = request.form['category']
+    #     image = request.files['image']
+    #     # Save the item to the database and redirect to the item page
+    #     return redirect(url_for('item', item_id=item_id))
+    # else:
+        return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'))
 
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
-    if request.method == 'POST' and 'image' in request.files:
-        file = request.files['image']
-        filename = images.save(file)
-        item_id = request.form['item_id']
-        image = Image(filename=filename, item_id=item_id)
-        db.session.add(image)
-        db.session.commit()
-        return redirect(url_for('view_item', item_id=item_id))
-    else:
-        items = Item.query.all()
-        return render_template('upload.html.j2', items=items)
+# @app.route('/upload', methods=['GET', 'POST'])
+# def upload():
+#     if request.method == 'POST' and 'image' in request.files:
+#         file = request.files['image']
+#         filename = images.save(file)
+#         item_id = request.form['item_id']
+#         image = Image(filename=filename, item_id=item_id)
+#         db.session.add(image)
+#         db.session.commit()
+#         return redirect(url_for('view_item', item_id=item_id))
+#     else:
+#         items = Item.query.all()
+#         return render_template('upload.html.j2', items=items)
 
 
-@app.route('/item/<int:item_id>')
-def view_item(item_id):
-    item = Item.query.get_or_404(item_id)
-    return render_template('item.html.j2', item=item)
+# @app.route('/item/<int:item_id>')
+# def view_item(item_id):
+#     item = Item.query.get_or_404(item_id)
+#     return render_template('item.html.j2', item=item)

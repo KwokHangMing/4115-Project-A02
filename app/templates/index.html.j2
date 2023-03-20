@@ -1,26 +1,32 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
-    {% if form %}
-        {{ wtf.quick_form(form) }}
-        <br/>
-    {% endif %}
-    {% for post in posts %}
-        {% include "_post.html.j2" %}
-    {% endfor %}
-    <nav aria-label="...">
-        <ul class="pager">
-            <li class="previous{% if not prev_url %} disabled{% endif %}">
-                <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span> {{ _('Newer posts') }}
-                </a>
-            </li>
-            <li class="next{% if not next_url %} disabled{% endif %}">
-                <a href="{{ next_url or '#' }}">
-                    {{ _('Older posts') }} <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <div id="carouselExample" class="carousel slide">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/15/31e2e093dc697dc8_(1500,610)" class="d-block w-100" alt="..."/>
+            </div>
+            <div class="carousel-item">
+                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/02/a4967b8c3df3d151_(1500,610)" class="d-block w-100" alt="..."/>
+            </div>
+            <div class="carousel-item">
+                <img src="https://media.karousell.com/media/photos/special-collection/2023/02/28/adb4246a1fc905ff_(1500,610)" class="d-block w-100" alt="..."/>
+            </div>
+        </div>
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExample"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExample"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
 {% endblock %}
