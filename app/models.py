@@ -90,5 +90,25 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f'<Post {self.body}>'
+    
+#our code here
+class Category(db.Model):
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), unique=True, nullable=False)
 
+class Listing(db.Model):
+    listing_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Integer, nullable=False)
+    condition = db.Column(db.String(50), nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='available')
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+    updated_at = db.Column(db.TIMESTAMP, onupdate=db.func.current_timestamp())
 
+class ListingImage(db.Model):
+    image_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.listing_id'), nullable=False)
+    image_url = db.Column(db.String(255), nullable=False)
