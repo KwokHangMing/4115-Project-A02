@@ -5,10 +5,11 @@ from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm
+from app.models import User, Post, Category, Listing, ListingImage
 from app.email import send_password_reset_email
-
+from werkzeug.utils import secure_filename
+import os
 
 
 @app.before_request
@@ -198,60 +199,77 @@ def unfollow(username):
 def electronics():
     return render_template('electronics.html.j2', title=_('Electronics'))
 
+
 @app.route('/fashion')
 def fashion():
     return render_template('fashion.html.j2', title=_('Fashion'))
+
 
 @app.route('/luxury')
 def luxury():
     return render_template('luxury.html.j2', title=_('Luxury'))
 
+
 @app.route('/services')
 def services():
     return render_template('services.html.j2', title=_('Services'))
+
 
 @app.route('/cars')
 def cars():
     return render_template('cars.html.j2', title=_('Cars'))
 
+
 @app.route('/property')
 def property():
     return render_template('property.html.j2', title=_('Properity'))
+
 
 @app.route('/all_categories')
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
 
+
 @app.route('/sell', methods=['GET', 'POST'])
 def sell():
-    # if request.method == 'POST':
-    #     title = request.form['title']
-    #     description = request.form['description']
-    #     price = request.form['price']
-    #     category = request.form['category']
-    #     image = request.files['image']
-    #     # Save the item to the database and redirect to the item page
-    #     return redirect(url_for('item', item_id=item_id))
-    # else:
-        return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'))
+    form = SellForm()
+    if form.validate_on_submit():
+        form.title.data = Listing.title
+        form.category.data = Category.name
+        form.description.data = Listing.description
+        form.price.data = Listing.price
+        db.session.commit()
+        flash(_('Your item have been saved.'))
+        return redirect(url_for('index'))
+    elif request.method == 'GET':
+        Listing.title.data = form.title.data
+        Category.name.data = form.category.data
+        Listing.description.data = form.description.data
+        Listing.price.data = form.price.data
+    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
 
 
-# @app.route('/upload', methods=['GET', 'POST'])
-# def upload():
-#     if request.method == 'POST' and 'image' in request.files:
-#         file = request.files['image']
-#         filename = images.save(file)
-#         item_id = request.form['item_id']
-#         image = Image(filename=filename, item_id=item_id)
-#         db.session.add(image)
-#         db.session.commit()
-#         return redirect(url_for('view_item', item_id=item_id))
-#     else:
-#         items = Item.query.all()
-#         return render_template('upload.html.j2', items=items)
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower(
+           ) in app.config["ALLOWED_EXTENSIONS"]
 
 
-# @app.route('/item/<int:item_id>')
-# def view_item(item_id):
-#     item = Item.query.get_or_404(item_id)
-#     return render_template('item.html.j2', item=item)
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('download_file', name=filename))
+        return render_template('index.html.j2')
