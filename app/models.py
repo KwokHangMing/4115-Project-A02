@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from hashlib import md5
 from app import app, db, login
 import jwt
-
+import base64
 from flask_login import UserMixin
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -94,7 +94,7 @@ class Post(db.Model):
 #our code here
 class Category(db.Model):
     category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
 
 class Listing(db.Model):
     listing_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -108,7 +108,14 @@ class Listing(db.Model):
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
     updated_at = db.Column(db.TIMESTAMP, onupdate=db.func.current_timestamp())
 
+
 class ListingImage(db.Model):
-    image_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    image_id = db.Column(db.Integer, primary_key=True)
     listing_id = db.Column(db.Integer, db.ForeignKey('listing.listing_id'), nullable=False)
-    image_url = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.String(100))
+    path = db.Column(db.String(100))
+    data = db.Column(db.LargeBinary)
+
+    def get_data_uri(self):
+        data_uri = base64.b64encode(self.data).decode('utf-8')
+        return f"data:image/jpeg;base64,{data_uri}"

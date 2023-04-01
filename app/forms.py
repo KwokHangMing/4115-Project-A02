@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField, SelectField, FileField, IntegerField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
     Length
+from flask_wtf.file import FileRequired
 from flask_babel import _, lazy_gettext as _l
 from app.models import User
 
@@ -73,5 +74,5 @@ class SellForm(FlaskForm):
     title = TextAreaField(_l('Listing Title'), validators=[DataRequired()])
     description = TextAreaField(_l('Description'), validators=[DataRequired()])
     price = IntegerField(_l('Price'), validators=[DataRequired()])
-    image = FileField(_l('Select Photos'))
+    image = FileField(_l('Select Photos', validators=[FileRequired]))
     submit = SubmitField(_l('List now'))
