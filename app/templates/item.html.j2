@@ -1,0 +1,7 @@
+{% extends "base.html.j2" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    {% for image in item.images %}<img src="{{ url_for('static', filename='images/' + image.filename) }}"/>{% endfor %}
+{% endblock %}
