@@ -74,5 +74,6 @@ class SellForm(FlaskForm):
     title = TextAreaField(_l('Listing Title'), validators=[DataRequired()])
     description = TextAreaField(_l('Description'), validators=[DataRequired()])
     price = IntegerField(_l('Price'), validators=[DataRequired()])
-    image = FileField(_l('Select Photos', validators=[FileRequired]))
+    location = SelectField(_l('Location'), choices=[('All of Hong Kong'), ('Hong Kong Island'), ('Kowloon'), ('New Territories')])
+    image = FileField(_l('Select Photos', validators=[FileRequired()]))
     submit = SubmitField(_l('List now'))
