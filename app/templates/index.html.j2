@@ -1,43 +1,67 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <div id="carouselExample" class="carousel slide">
-        <div class="carousel-inner">
-            <div class="item active">
-                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/02/a4967b8c3df3d151_(1500,610)"
-                     class="d-block w-100"
-                     alt="..."/>
-            </div>
-            <div class="carousel-item">
-                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/17/440bca55c18e1cb7_(1500,610)"
-                     class="d-block w-100"
-                     alt="..."/>
-            </div>
-            <div class="carousel-item">
-                <img src="https://media.karousell.com/media/photos/special-collection/2023/02/28/adb4246a1fc905ff_(1500,610)"
-                     class="d-block w-100"
-                     alt="..."/>
-            </div>
-            <div class="carousel-item">
-                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/20/d175418376a022d7_(1500,610)"
-                     class="d-block w-100"
-                     alt="..."/>
-            </div>
-        </div>
-        <button class="carousel-control-prev"
-                type="button"
-                data-bs-target="#carouselExample"
-                data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next"
-                type="button"
-                data-bs-target="#carouselExample"
-                data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-{% endblock %}
+    <!-- Alex coding here -->
+    <div class="container">
+        <div class="row">
+            <div class="col align-self-start">
+                <div class="search-1"></div>
+                <form action="/search" method="GET" class="d-flex">
+                    <input type="search"
+                           name="q"
+                           class="form-control me-2"
+                           placeholder="Search for anything and everying">
+                    <div class="col align-self-start>
+                        <div>
+                            <div class="search-2"></div>
+                                <form action="/search" method="GET" class="d-flex">
+                                    <input type="search"
+                                           name="q"
+                                           class="form-control me-2"
+                                           placeholder="All of Hong Kong">
+                                    <button class="btn btn-primary" type="submit">Search</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+        <!-- Leo coding here -->
+                    <div id="carouselExample" class="carousel slide">
+                        <div class="carousel-inner">
+                            <div class="item active">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/02/a4967b8c3df3d151_(1500,610)"
+                                     class="d-block w-100"
+                                     alt="..."/>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/17/440bca55c18e1cb7_(1500,610)"
+                                     class="d-block w-100"
+                                     alt="..."/>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/02/28/adb4246a1fc905ff_(1500,610)"
+                                     class="d-block w-100"
+                                     alt="..."/>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/20/d175418376a022d7_(1500,610)"
+                                     class="d-block w-100"
+                                     alt="..."/>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev"
+                                type="button"
+                                data-bs-target="#carouselExample"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next"
+                                type="button"
+                                data-bs-target="#carouselExample"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                {% endblock %}
