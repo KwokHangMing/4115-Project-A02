@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm
-from app.models import User, Post, Category, Listing, ListingImage
+from app.models import User, Post, Category, Listing, ListingImage, Location
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 import os
@@ -22,25 +22,8 @@ def before_request():
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
-@login_required
 def index():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
-        db.session.add(post)
-        db.session.commit()
-        flash(_('Your post is now live!'))
-        return redirect(url_for('index'))
-    page = request.args.get('page', 1, type=int)
-    posts = current_user.followed_posts().paginate(
-        page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for(
-        'index', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for(
-        'index', page=posts.prev_num) if posts.prev_num else None
-    return render_template('index.html.j2', title=_('Home'), form=form,
-                           posts=posts.items, next_url=next_url,
-                           prev_url=prev_url)
+    return render_template('index.html.j2', title=_('Home'))
 
 
 @app.route('/explore')
@@ -192,7 +175,8 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-#our code here
+# our code here
+
 
 @app.route('/electronics')
 def electronics():
@@ -234,38 +218,32 @@ def all_categories():
 def sell():
     form = SellForm()
     if form.validate_on_submit():
-        try:
-            # Get the uploaded file
-            image_file = form.image.data
-            # Save the file to the database
-            filename=secure_filename(image_file.filename)
-            filepath = os.path.join(app.config['UPLOAD_PATH'], filename)
-            image_file.save(filepath)
-            image = ListingImage(path=filepath, image_id=image_id)
-            category = Category(name=form.category.data)
-            listing = Listing(
-                title=form.title.data, description=form.description.data, price=form.price.data)
-            db.session.add(image)
-            db.session.add(listing)
-            db.session.add(category)
-            db.session.commit()
-            image_id = image.id
-            flash(_('Your item has been saved.'))
-            return redirect(url_for('index'))
-        except:
-            db.session.rollback()
-            flash(_('An error occurred while saving your item. Please try again.'))
-    elif request.method == 'GET':
-        if Listing.query.first() is not None:
-            listing = Listing.query.first()
-            form.title.data = listing.title
-            form.category.data = listing.category.name
-            form.description.data = listing.description
-            form.price.data = listing.price
-        else:
-            # Set default values for the form
-            form.title.data = ''
-            form.category.data = ''
-            form.description.data = ''
-            form.price.data = 0
+        image_file = form.image.data
+        filename = secure_filename(image_file.filename)
+        filepath = os.path.join(app.config['UPLOAD_PATH'], filename)
+        image_file.save(filepath)
+        image = ListingImage(path=filename)
+        category = Category(name=form.category.data)
+        listing = Listing(title=form.title.data, description=form.description.data, price=form.price.data)
+        location_name = Location(name=form.location.name)
+        db.session.add(image)
+        db.session.add(listing)
+        db.session.add(category)
+        db.session.add(location_name)
+        db.session.commit()
+        flash(_('Your item has been saved.'))
+        return redirect(url_for('index'))
+    # elif request.method == 'GET':
+    #     if Listing.query.first() is not None:
+    #         listing = Listing.query.first()
+    #         form.title.data = listing.title
+    #         form.category.data = listing.category.name
+    #         form.description.data = listing.description
+    #         form.price.data = listing.price
+    #     else:
+    #         # Set default values for the form
+    #         form.title.data = ''
+    #         form.category.data = ''
+    #         form.description.data = ''
+    #         form.price.data = 0
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
