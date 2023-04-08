@@ -1,6 +1,6 @@
 work at other branch
 
-# How to create translation
+# How **NOT** to create translation
 Run following commands
 
 edited by leo
@@ -11,3 +11,4 @@ pybabel extract -F babel.cfg -k _l -o messages.pot .
 pybabel update -i messages.pot -d app/translations
 pybabel compile -d app/translations
 ```
+Alex

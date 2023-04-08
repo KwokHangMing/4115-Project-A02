@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    TextAreaField
+    TextAreaField, SelectField, FileField, IntegerField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
     Length
+from flask_wtf.file import FileRequired
 from flask_babel import _, lazy_gettext as _l
 from app.models import User
 
@@ -67,3 +68,12 @@ class EditProfileForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField(_l('Say something'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
+
+class SellForm(FlaskForm):
+    category = SelectField(_l('Category'), choices=[('Electronics'), ('Fashion'), ('Luxury'), ('Services'), ('Cars'), ('Property')])
+    title = TextAreaField(_l('Listing Title'), validators=[DataRequired()])
+    description = TextAreaField(_l('Description'), validators=[DataRequired()])
+    price = IntegerField(_l('Price'), validators=[DataRequired()])
+    location = SelectField(_l('Location'), choices=[('All of Hong Kong'), ('Hong Kong Island'), ('Kowloon'), ('New Territories')])
+    image = FileField(_l('Select Photos', validators=[FileRequired()]))
+    submit = SubmitField(_l('List now'))

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from hashlib import md5
 from app import app, db, login
 import jwt
-
+import base64
 from flask_login import UserMixin
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -29,6 +29,7 @@ class User(UserMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    listing = db.relationship('Listing', backref='author', lazy='dynamic')
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'
@@ -72,10 +73,9 @@ class User(UserMixin, db.Model):
         try:
             id = jwt.decode(token, app.config["SECRET_KEY"], algorithms="HS256")[
                 "reset_password"]
-        except:           
+        except:
             return None
         return User.query.get(id)
-
 
 @login.user_loader
 def load_user(id):
@@ -90,3 +90,36 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f'<Post {self.body}>'
+    
+#our code here
+class Category(db.Model):
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    listings = db.relationship('Listing', backref='category', lazy='dynamic')
+
+class Listing(db.Model):
+    listing_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Integer, nullable=False)
+    condition = db.Column(db.String(50), nullable=False, default='available')
+    status = db.Column(db.String(50), nullable=False, default='available')
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+
+
+class ListingImage(db.Model):
+    image_id = db.Column(db.Integer, primary_key=True)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.listing_id'))
+    filename = db.Column(db.String(100))
+    path = db.Column(db.String(100))
+    data = db.Column(db.LargeBinary)
+
+    def get_data_uri(self):
+        data_uri = base64.b64encode(self.data).decode('utf-8')
+        return f"data:image/jpeg;base64,{data_uri}"
+
+class Location(db.Model):
+    location_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))

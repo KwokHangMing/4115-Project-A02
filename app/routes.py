@@ -1,13 +1,15 @@
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, g
+from flask import abort, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm
+from app.models import User, Post, Category, Listing, ListingImage, Location
 from app.email import send_password_reset_email
+from werkzeug.utils import secure_filename
+import os
 
 
 @app.before_request
@@ -189,3 +191,76 @@ def unfollow(username):
     db.session.commit()
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
+
+# our code here
+
+
+@app.route('/electronics')
+def electronics():
+    return render_template('electronics.html.j2', title=_('Electronics'))
+
+
+@app.route('/fashion')
+def fashion():
+    return render_template('fashion.html.j2', title=_('Fashion'))
+
+
+@app.route('/luxury')
+def luxury():
+    return render_template('luxury.html.j2', title=_('Luxury'))
+
+
+@app.route('/services')
+def services():
+    return render_template('services.html.j2', title=_('Services'))
+
+
+@app.route('/cars')
+def cars():
+    return render_template('cars.html.j2', title=_('Cars'))
+
+
+@app.route('/property')
+def property():
+    return render_template('property.html.j2', title=_('Properity'))
+
+
+@app.route('/all_categories')
+def all_categories():
+    return render_template('all_categories.html.j2', title=_('All Categories'))
+
+
+@app.route('/sell', methods=['GET', 'POST'])
+@login_required
+def sell():
+    form = SellForm()
+    if form.validate_on_submit():
+        image_file = form.image.data
+        filename = secure_filename(image_file.filename)
+        filepath = os.path.join(app.config['UPLOAD_PATH'], filename)
+        image_file.save(filepath)
+        image = ListingImage(path=filename)
+        category = Category(name=form.category.data)
+        listing = Listing(title=form.title.data, description=form.description.data, price=form.price.data)
+        location_name = Location(name=form.location.name)
+        db.session.add(image)
+        db.session.add(listing)
+        db.session.add(category)
+        db.session.add(location_name)
+        db.session.commit()
+        flash(_('Your item has been saved.'))
+        return redirect(url_for('index'))
+    # elif request.method == 'GET':
+    #     if Listing.query.first() is not None:
+    #         listing = Listing.query.first()
+    #         form.title.data = listing.title
+    #         form.category.data = listing.category.name
+    #         form.description.data = listing.description
+    #         form.price.data = listing.price
+    #     else:
+    #         # Set default values for the form
+    #         form.title.data = ''
+    #         form.category.data = ''
+    #         form.description.data = ''
+    #         form.price.data = 0
+    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
