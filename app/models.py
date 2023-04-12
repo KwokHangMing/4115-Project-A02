@@ -91,11 +91,11 @@ class Post(db.Model):
     def __repr__(self) -> str:
         return f'<Post {self.body}>'
     
-#our code here
+#our code here(Leo)
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    listings = db.relationship('Listing', backref='category', lazy='dynamic')
+    # listings = db.relationship('Listing', backref='category', lazy='dynamic')
 
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
