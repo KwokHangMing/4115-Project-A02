@@ -224,7 +224,8 @@ def sell():
         image_file.save(filepath)
         image = ListingImage(path=filename)
         category = Category(name=form.category.data)
-        listing = Listing(title=form.title.data, description=form.description.data, price=form.price.data)
+        listing = Listing(
+            title=form.title.data, description=form.description.data, price=form.price.data)
         location_name = Location(name=form.location.name)
         db.session.add(image)
         db.session.add(listing)
@@ -233,17 +234,26 @@ def sell():
         db.session.commit()
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
-    # elif request.method == 'GET':
-    #     if Listing.query.first() is not None:
-    #         listing = Listing.query.first()
-    #         form.title.data = listing.title
-    #         form.category.data = listing.category.name
-    #         form.description.data = listing.description
-    #         form.price.data = listing.price
-    #     else:
-    #         # Set default values for the form
-    #         form.title.data = ''
-    #         form.category.data = ''
-    #         form.description.data = ''
-    #         form.price.data = 0
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
+
+
+def recommendations():
+    recommended_listings = Listing.query.filter_by(recommended=True).all()
+    recommendations = []
+    for listing in recommended_listings:
+        user = User.query.get(listing.user_id)
+        item_data = {
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'profile_image': user.avatar(128),
+                'last_seen': user.last_seen,
+            },
+            'item': {
+                'id': listing.id,
+                'name': listing.title,
+                'price': listing.price,
+                'photo': listing.images[0].get_data_uri(),
+            }
+        }
+    recommendations.append(item_data)
