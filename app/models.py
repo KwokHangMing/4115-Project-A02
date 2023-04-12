@@ -93,14 +93,14 @@ class Post(db.Model):
     
 #our code here
 class Category(db.Model):
-    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     listings = db.relationship('Listing', backref='category', lazy='dynamic')
 
 class Listing(db.Model):
-    listing_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Integer, nullable=False)
@@ -110,8 +110,8 @@ class Listing(db.Model):
 
 
 class ListingImage(db.Model):
-    image_id = db.Column(db.Integer, primary_key=True)
-    listing_id = db.Column(db.Integer, db.ForeignKey('listing.listing_id'))
+    id = db.Column(db.Integer, primary_key=True)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'))
     filename = db.Column(db.String(100))
     path = db.Column(db.String(100))
     data = db.Column(db.LargeBinary)
@@ -123,3 +123,4 @@ class ListingImage(db.Model):
 class Location(db.Model):
     location_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
+
