@@ -221,7 +221,7 @@ def sell():
         image_file = form.image.data
         filename = secure_filename(image_file.filename)
         filepath = os.path.join(app.config['UPLOAD_PATH'], filename)
-        # image_file.save(filepath)
+        image_file.save(filepath)
         image = ListingImage(path=filename)
         category = Category(name=form.category.data)
         listing = Listing(

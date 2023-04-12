@@ -4,7 +4,7 @@ from hashlib import md5
 from app import app, db, login
 import jwt
 import base64
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -100,13 +100,23 @@ class Category(db.Model):
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('listings', lazy=True))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+    category = db.relationship('Category', backref=db.backref('listings', lazy=True))
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Integer, nullable=False)
     condition = db.Column(db.String(50), nullable=False, default='available')
     status = db.Column(db.String(50), nullable=False, default='available')
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+
+    def __init__(self, title, description, price, condition, user=None, category=None):
+        self.title = title
+        self.description = description
+        self.price = price
+        self.condition = condition
+        self.user = user or current_user
+        self.category = category
 
 
 class ListingImage(db.Model):
