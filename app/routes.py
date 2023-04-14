@@ -3,13 +3,14 @@ from flask import abort, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
+from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm
 from app.models import User, Post, Category, Listing, ListingImage, Location
 from app.email import send_password_reset_email
-from werkzeug.utils import secure_filename
 import os
+from werkzeug.utils import secure_filename
 
 
 @app.before_request
@@ -220,9 +221,17 @@ def sell():
     if form.validate_on_submit():
         image_file = form.image.data
         filename = secure_filename(image_file.filename)
-        filepath = os.path.join(app.config['UPLOAD_PATH'], filename)
-        image_file.save(filepath)
-        image = ListingImage(path=filename)
+        # Create a GCS client
+        storage_client = storage.Client.from_service_account_json(
+            app.config['CRED_JSON'])
+        bucket = storage_client.bucket(app.config['BUCKET_NAME'])
+        # Set the blob name or path of the file to upload
+        blob = bucket.blob(f'images/{filename}')
+        # Upload the file to the blob
+        blob.upload_from_string(
+            image_file.read(), content_type=image_file.content_type)
+        # Create the ListingImage object with the filename
+        image = ListingImage(path=f'images/{filename}')
         category = Category(name=form.category.data)
         listing = Listing(
             title=form.title.data, description=form.description.data, price=form.price.data)
@@ -235,25 +244,3 @@ def sell():
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
-
-
-def recommendations():
-    recommended_listings = Listing.query.filter_by(recommended=True).all()
-    recommendations = []
-    for listing in recommended_listings:
-        user = User.query.get(listing.user_id)
-        item_data = {
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'profile_image': user.avatar(128),
-                'last_seen': user.last_seen,
-            },
-            'item': {
-                'id': listing.id,
-                'name': listing.title,
-                'price': listing.price,
-                'photo': listing.images[0].get_data_uri(),
-            }
-        }
-    recommendations.append(item_data)

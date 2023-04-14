@@ -95,7 +95,7 @@ class Post(db.Model):
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    # listings = db.relationship('Listing', backref='category', lazy='dynamic')
+    listings_rel = db.relationship('Listing', backref='category_obj', lazy='dynamic')
 
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -106,17 +106,16 @@ class Listing(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Integer, nullable=False)
-    condition = db.Column(db.String(50), nullable=False, default='available')
     status = db.Column(db.String(50), nullable=False, default='available')
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
 
-    def __init__(self, title, description, price, condition, user=None, category=None):
-        self.title = title
-        self.description = description
-        self.price = price
-        self.condition = condition
-        self.user = user or current_user
-        self.category = category
+    # def __init__(self, title, description, price, condition, user=None, category=None):
+    #     self.title = title
+    #     self.description = description
+    #     self.price = price
+    #     self.condition = condition
+    #     self.user = user or current_user
+    #     self.category = category
 
 
 class ListingImage(db.Model):
