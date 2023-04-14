@@ -232,13 +232,20 @@ def sell():
             image_file.read(), content_type=image_file.content_type)
         # Create the ListingImage object with the filename
         image = ListingImage(path=f'images/{filename}')
+        # Get the category object based on the selected category name
         category = Category(name=form.category.data)
-        listing = Listing(
-            title=form.title.data, description=form.description.data, price=form.price.data)
+        # Create the Listing object with the form data, user and category objects
+        listing = Listing(title=form.title.data,
+                          description=form.description.data,
+                          price=form.price.data,
+                          status='available',  # set the status to 'available'
+                          user=current_user,
+                          category=category)
+        # Add the objects to the database
         location_name = Location(name=form.location.name)
+        db.session.add(category)
         db.session.add(image)
         db.session.add(listing)
-        db.session.add(category)
         db.session.add(location_name)
         db.session.commit()
         flash(_('Your item has been saved.'))

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    TextAreaField, SelectField, FileField, IntegerField
+    TextAreaField, SelectField, FileField, IntegerField, HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
     Length
 from flask_wtf.file import FileRequired
@@ -76,4 +76,5 @@ class SellForm(FlaskForm):
     price = IntegerField(_l('Price'), validators=[DataRequired()])
     location = SelectField(_l('Location'), choices=[('All of Hong Kong'), ('Hong Kong Island'), ('Kowloon'), ('New Territories')])
     image = FileField(_l('Select Photos', validators=[FileRequired()]))
+    status = HiddenField(default='available') 
     submit = SubmitField(_l('List now'))
