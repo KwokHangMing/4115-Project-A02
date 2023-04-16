@@ -24,7 +24,7 @@ def before_request():
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html.j2', title=_('Home'))
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'))
 
 
 @app.route('/explore')

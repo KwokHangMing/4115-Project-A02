@@ -10,7 +10,7 @@
                     <input type="search"
                            name="q"
                            class="form-control me-2"
-                           placeholder="Search for anything and everying">
+                           placeholder="Search for anything and everying"/>
                     <div class="col align-self-start>
                         <div>
                             <div class="search-2"></div>
@@ -18,13 +18,13 @@
                                     <input type="search"
                                            name="q"
                                            class="form-control me-2"
-                                           placeholder="All of Hong Kong">
+                                           placeholder="All of Hong Kong"/>
                                     <button class="btn btn-primary" type="submit">Search</button>
                                 </form>
                             </div>
                         </div>
                     </div>
-
+                </form>
         <!-- Leo coding here -->
                     <div id="carouselExample" class="carousel slide">
                         <div class="carousel-inner">
@@ -64,5 +64,10 @@
                             <span class="visually-hidden">Next</span>
                         </button>
                     </div>
-                {% endblock %}
+                    <h1>{{ _('Your Daily Picks') }}</h1>
+                    <h1>{{ _('What would you like to find?') }}</h1>
+                    <h1>{{ _('Popular Goods') }}</h1>
+
+    </div>            
+{% endblock %}
 {% extends "footer.html.j2" %}
