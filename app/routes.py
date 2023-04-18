@@ -3,13 +3,14 @@ from flask import abort, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
+from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, SellForm
-from app.models import User, Post, Category, Listing, ListingImage
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad
 from app.email import send_password_reset_email
-from werkzeug.utils import secure_filename
 import os
+from werkzeug.utils import secure_filename
 
 
 @app.before_request
@@ -23,7 +24,26 @@ def before_request():
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html.j2', title=_('Home'))
+    listings = Listing.query.all()
+    ads = Ad.query.all()
+    listings_images = ListingImage.query.all()
+    location = Location.query.all()
+    category = Category.query.all()
+    # storage_client = storage.Client.from_service_account_json(app.config['CRED_JSON'])
+    # bucket_name = app.config['BUCKET_NAME']
+    # image_urls = {}
+
+    # for image in listings_images:
+    #     image_blob = storage_client.bucket(bucket_name).get_blob(image.filename)
+    #     if image_blob is not None:
+    #         image_urls[image.image_name] = image_blob.generate_signed_url(
+    #             version='v4',
+    #             expiration=datetime.timedelta(hours=1),
+    #             method='GET'
+    #         )
+
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'),
+                           listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
 
 
 @app.route('/explore')
@@ -175,7 +195,8 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-#our code here
+# our code here
+
 
 @app.route('/electronics')
 def electronics():
@@ -217,38 +238,53 @@ def all_categories():
 def sell():
     form = SellForm()
     if form.validate_on_submit():
-        try:
-            # Get the uploaded file
-            image_file = form.image.data
-            # Save the file to the database
-            filename=secure_filename(image_file.filename)
-            filepath = os.path.join(app.config['UPLOAD_PATH'], filename)
-            image_file.save(filepath)
-            image = ListingImage(path=filepath, image_id=image_id)
-            category = Category(name=form.category.data)
-            listing = Listing(
-                title=form.title.data, description=form.description.data, price=form.price.data)
-            db.session.add(image)
-            db.session.add(listing)
-            db.session.add(category)
-            db.session.commit()
-            image_id = image.id
-            flash(_('Your item has been saved.'))
-            return redirect(url_for('index'))
-        except:
-            db.session.rollback()
-            flash(_('An error occurred while saving your item. Please try again.'))
-    elif request.method == 'GET':
-        if Listing.query.first() is not None:
-            listing = Listing.query.first()
-            form.title.data = listing.title
-            form.category.data = listing.category.name
-            form.description.data = listing.description
-            form.price.data = listing.price
-        else:
-            # Set default values for the form
-            form.title.data = ''
-            form.category.data = ''
-            form.description.data = ''
-            form.price.data = 0
-    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
+        image_file = form.image.data
+        filename = secure_filename(image_file.filename)
+        # Create a GCS client
+        storage_client = storage.Client.from_service_account_json(
+            app.config['CRED_JSON'])
+        bucket = storage_client.bucket(app.config['BUCKET_NAME'])
+        # Set the blob name or path of the file to upload
+        blob = bucket.blob(f'images/{filename}')
+        # Upload the file to the blob
+        blob.upload_from_string(
+            image_file.read(), content_type=image_file.content_type)
+        # Create the ListingImage object with the filename
+        image = ListingImage(path=f'images/{filename}')
+        # Get the category object based on the selected category name
+        category = Category(name=form.category.data)
+        # Create the Listing object with the form data, user and category objects
+        listing = Listing(title=form.title.data,
+                          description=form.description.data,
+                          price=form.price.data,
+                          status='available',  # set the status to 'available'
+                          user=current_user,
+                          category=category)
+        # Add the objects to the database
+        location_name = Location(name=form.location.name)
+        db.session.add(category)
+        db.session.add(image)
+        db.session.add(listing)
+        db.session.add(location_name)
+        db.session.commit()
+        flash(_('Your item has been saved.'))
+        return redirect(url_for('index'))
+    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    form = AdminForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        image_url = form.image_url.data
+        ad = Ad(title=title, image_url=image_url)
+        db.session.add(ad)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('admin.html.j2', title=_('Admin'), form=form)
+
+
+@app.route('/item', methods=['GET', 'POST'])
+def item():
+    return render_template('item.html.j2')
