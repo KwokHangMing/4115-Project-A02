@@ -18,7 +18,7 @@
                                 <input type="search"
                                        name="q"
                                        class="form-control me-2"
-                                       placeholder="All of Hong Kong"/>
+                                       placeholder="All of Hong Kong">
                                 <button class="btn btn-primary" type="submit">Search</button>
                             </form>
                         </div>
@@ -26,35 +26,6 @@
                 </div>
             </form>
             <!-- Leo coding here -->
-            {# <div id="carouselExample" class="carousel slide">
-                <div class="carousel-inner">
-                    <div class="item active">
-                        <img src="https://media.karousell.com/media/photos/special-collection/2023/03/02/a4967b8c3df3d151_(1500,610)" class="d-block w-100" alt="..."/>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://media.karousell.com/media/photos/special-collection/2023/03/17/440bca55c18e1cb7_(1500,610)" class="d-block w-100" alt="..."/>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://media.karousell.com/media/photos/special-collection/2023/02/28/adb4246a1fc905ff_(1500,610)" class="d-block w-100" alt="..."/>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://media.karousell.com/media/photos/special-collection/2023/03/20/d175418376a022d7_(1500,610)" class="d-block w-100" alt="..."/>
-                    </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
-            <h1>{{ _('Your Daily Picks') }}</h1>
-            <h1>{{ _('What would you like to find?') }}</h1>
-            <h1>{{ _('Popular Goods') }}</h1>
-        </div>
-        <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel"></div> #}
         {% endblock %}
         {% block content %}
             {# <div class="row"> #}
@@ -81,6 +52,35 @@
             </div>
             {% include "item.html.j2" %}
         {% endblock %}
-        {% include "top_searches.html.j2" %}
-        {% include "follow_us.html.j2" %}
-        {% extends "footer.html.j2" %}
+                <!-- Alex coding here -->
+               {% block container %}
+                <div class="container">
+                    <div id="myCarousel" class="carousel slide">
+                        <ol class="carousel-indicators">
+                            <li data-target="#myCarousel" data-slide-to="0"></li>
+                            <li data-target="#myCarousel" data-slide-to="1" class="active"></li>
+                            <li data-target="#myCarousel" data-slide-to="2"></li>
+                        </ol>
+                        <div class="carousel-inner">
+                            <div class="item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/02/a4967b8c3df3d151_(1500,610)">
+                            </div>
+                            <div class="item active">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/17/440bca55c18e1cb7_(1500,610)">
+                            </div>
+                            <div class="item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/02/28/adb4246a1fc905ff_(1500,610)">
+                            </div>
+                        </div>
+                        <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </a>
+                        <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </a>
+                    </div>
+                </div>
+            {% endblock %}
+{% include "top_searches.html.j2" %}
+{% include "follow_us.html.j2" %}
+{% extends "footer.html.j2" %}
