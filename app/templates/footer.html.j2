@@ -65,12 +65,19 @@
     <hr/>
 
     &ensp;&ensp;
-    <img src="https://cdn.discordapp.com/attachments/1030322688398458891/1094311325842276392/image.png"/>
-
-    <p>©2023 Carousell</p>
+    
+<nav class="navbar bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand ms-3">
+      <img src="https://cdn.discordapp.com/attachments/1030322688398458891/1094311325842276392/image.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+      © 2023 Carousell
+    </a>
+  </div>
+</nav>
+    {# <p>©2023 Carousell</p> #}
 
     <div>
-        <p>
+        <p class="nav">
             <a href="#">Help Centre</a>
             •
             <a href="#">Contact Us</a>
@@ -86,10 +93,11 @@
             <a href="#">Privacy</a>
         </p>
     </div>
-
-    <select id="slctContries">
+    <select id="slctContries" class="nav justify-content-end">
         <option value="">English</option>
     </select>
+</footer>
+{% endblock %}
 {% block scripts %}
     <script>
         let Contries = ["Tsuen Wan", "HongKong"];
@@ -103,5 +111,3 @@
         });
     </script>
 {% endblock scripts %}
-</footer>
-{% endblock %}

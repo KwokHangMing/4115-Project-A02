@@ -7,7 +7,7 @@ from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm
-from app.models import User, Post, Category, Listing, ListingImage, Location
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
@@ -24,7 +24,9 @@ def before_request():
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'))
+    listings = Listing.query.all()
+    ads = Ad.query.all()
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, ads=ads)
 
 
 @app.route('/explore')
@@ -250,4 +252,15 @@ def sell():
         db.session.commit()
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
-    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Microblog'), form=form)
+    return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        title = request.form['title']
+        image_url = request.form['image_url']
+        ad = Ad(title=title, image_url=image_url)
+        db.session.add(ad)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('admin.html.j2')

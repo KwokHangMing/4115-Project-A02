@@ -133,3 +133,7 @@ class Location(db.Model):
     location_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
 
+class Ad(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    image_url = db.Column(db.String(200))

@@ -69,5 +69,32 @@
                     <h1>{{ _('Popular Goods') }}</h1>
 
     </div>            
+    <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+  <div class="carousel-inner">
+    {% for ad in ads %}
+    <div class="carousel-item {% if loop.first %}active{% endif %}">
+      <img class="d-block w-100" src="{{ ad.image_url }}" alt="{{ ad.title }}">
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="row">
+  {% for listing in listings %}
+  <div class="col-md-4 mb-4">
+    <div class="card">
+      {% if listing.listing_images %}
+      <img class="card-img-top" src="{{ listing.listing_images[0].get_data_uri() }}" alt="{{ listing.title }}">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ listing.title }}</h5>
+        <p class="card-text">{{ listing.description }}</p>
+        <p class="card-text">{{ listing.price }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}
 {% extends "footer.html.j2" %}
