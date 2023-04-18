@@ -78,3 +78,8 @@ class SellForm(FlaskForm):
     image = FileField(_l('Select Photos', validators=[FileRequired()]))
     status = HiddenField(default='available') 
     submit = SubmitField(_l('List now'))
+
+class AdminForm(FlaskForm):
+    title = TextAreaField(_l('Title'), validators=[DataRequired()])
+    image_url = TextAreaField(_l('Image URL'), validators=[DataRequired()])
+    submit = SubmitField(_l('Submit'))

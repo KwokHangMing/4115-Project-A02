@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, SellForm
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
 from app.models import User, Post, Category, Listing, ListingImage, Location, Ad
 from app.email import send_password_reset_email
 import os
@@ -26,7 +26,24 @@ def before_request():
 def index():
     listings = Listing.query.all()
     ads = Ad.query.all()
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, ads=ads)
+    listings_images = ListingImage.query.all()
+    location = Location.query.all()
+    category = Category.query.all()
+    # storage_client = storage.Client.from_service_account_json(app.config['CRED_JSON'])
+    # bucket_name = app.config['BUCKET_NAME']
+    # image_urls = {}
+
+    # for image in listings_images:
+    #     image_blob = storage_client.bucket(bucket_name).get_blob(image.filename)
+    #     if image_blob is not None:
+    #         image_urls[image.image_name] = image_blob.generate_signed_url(
+    #             version='v4',
+    #             expiration=datetime.timedelta(hours=1),
+    #             method='GET'
+    #         )
+
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'),
+                           listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
 
 
 @app.route('/explore')
@@ -254,13 +271,20 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    if request.method == 'POST':
-        title = request.form['title']
-        image_url = request.form['image_url']
+    form = AdminForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        image_url = form.image_url.data
         ad = Ad(title=title, image_url=image_url)
         db.session.add(ad)
         db.session.commit()
         return redirect(url_for('index'))
-    return render_template('admin.html.j2')
+    return render_template('admin.html.j2', title=_('Admin'), form=form)
+
+
+@app.route('/item', methods=['GET', 'POST'])
+def item():
+    return render_template('item.html.j2')
