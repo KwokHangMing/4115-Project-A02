@@ -1,26 +1,54 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
-    {% if form %}
-        {{ wtf.quick_form(form) }}
-        <br/>
-    {% endif %}
-    {% for post in posts %}
-        {% include "_post.html.j2" %}
-    {% endfor %}
-    <nav aria-label="...">
-        <ul class="pager">
-            <li class="previous{% if not prev_url %} disabled{% endif %}">
-                <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span> {{ _('Newer posts') }}
-                </a>
-            </li>
-            <li class="next{% if not next_url %} disabled{% endif %}">
-                <a href="{{ next_url or '#' }}">
-                    {{ _('Older posts') }} <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-{% endblock %}
+    <!-- Alex coding here -->
+    <div class="container">
+        <div class="row">
+            <div class="col align-self-start">
+                <div class="search-1"></div>
+                <form action="/search" method="GET" class="d-flex">
+                    <input type="search"
+                           name="q"
+                           class="form-control me-2"
+                           placeholder="Search for anything and everying">
+                    <div class="col align-self-start>
+                        <div>
+                            <div class="search-2"></div>
+                            <form action="/search" method="GET" class="d-flex">
+                                <input type="search"
+                                       name="q"
+                                       class="form-control me-2"
+                                       placeholder="All of Hong Kong">
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Alex coding here -->
+                <div class="container">
+                    <div id="myCarousel" class="carousel slide">
+                        <ol class="carousel-indicators">
+                            <li data-target="#myCarousel" data-slide-to="0"></li>
+                            <li data-target="#myCarousel" data-slide-to="1" class="active"></li>
+                            <li data-target="#myCarousel" data-slide-to="2"></li>
+                        </ol>
+                        <div class="carousel-inner">
+                            <div class="item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/02/a4967b8c3df3d151_(1500,610)">
+                            </div>
+                            <div class="item active">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/03/17/440bca55c18e1cb7_(1500,610)">
+                            </div>
+                            <div class="item">
+                                <img src="https://media.karousell.com/media/photos/special-collection/2023/02/28/adb4246a1fc905ff_(1500,610)">
+                            </div>
+                        </div>
+                        <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </a>
+                        <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </a>
+                    </div>
+                </div>
+            {% endblock %}
