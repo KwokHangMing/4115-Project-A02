@@ -29,29 +29,16 @@ def index():
     listings_images = ListingImage.query.all()
     location = Location.query.all()
     category = Category.query.all()
-    latest_image_url = get_latest_image_url()
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images,
-                           location=location, category=category, latest_image_url=latest_image_url
-                           )
-
-
-def get_latest_image_url():
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blobs = bucket.list_blobs()
-    image_urls = []
-    for blob in blobs:
-        if blob.content_type.startswith('image/'):
-            image_urls.append(blob.public_url)
-
-    if image_urls:
-        latest_image_url = image_urls[-1]
-    else:
-        latest_image_url = None
-
-    return latest_image_url
-
+    blobs = list(bucket.list_blobs())
+    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
+    latest_image_url = latest_blob.public_url
+    # latest_image_url = get_latest_image_url()
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images,
+                           location=location, category=category, image_url=latest_image_url
+                           )
 
 
 @app.route('/explore')

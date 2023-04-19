@@ -94,11 +94,9 @@
       {% for listing in listings %}
         <div class="col-md-4 mb-4">
           <div class="card">
-            {% if latest_image_url %}
-              <img src="{{ latest_image_url }}" alt="Latest Image">
-            {% else %}
-              <p>No images found.</p>
-            {% endif %}
+            <img src="{{ image_url }}"
+                 class="card-img-top"
+                 alt="latest-uploaded-image">
             <div class="card-body">
               <h5 class="card-title">{{ listing.title }}</h5>
               <p class="card-text">{{ listing.description }}</p>
