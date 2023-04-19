@@ -1,19 +1,19 @@
 {# {% extends "base.html.j2" %} #}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <head>
-        <script src="../assets/js/color-modes.js"></script>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author"
-              content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-        <meta name="generator" content="Hugo 0.111.3">
-        <title>item</title>
-        <link rel="canonical"
-              href="https://getbootstrap.com/docs/5.3/examples/cheatsheet/">
-        <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
+  <head>
+    <script src="../assets/js/color-modes.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author"
+          content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.111.3">
+    <title>item</title>
+    <link rel="canonical"
+          href="https://getbootstrap.com/docs/5.3/examples/cheatsheet/">
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
         text-anchor: middle;
@@ -85,23 +85,29 @@
       .bd-mode-toggle {
         z-index: 1500;
       }
-        </style>
-        <!-- Custom styles for this template -->
-        <link href="static/css/cheatsheet.css" rel="stylesheet">
-    </head>
-    <div class="card" style="width: 18rem;">
-        <img src="..." class="card-img-top" alt="...">
-        <div class="card-body">
-            <h5 class="card-title"></h5>
-            <p class="card-text">Title</p>
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="static/css/cheatsheet.css" rel="stylesheet">
+  </head>
+<div class="container">
+  <div class="row">
+    {% for listing in listings %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          {% if listing.listing_images %}
+            <img class="card-img-top"
+                 src="{{ listingimage.data }}"
+                 alt="{{ listing.title }}">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ listing.title }}</h5>
+            <p class="card-text">{{ listing.description }}</p>
+            <p class="card-text font-weight-bold">${{ listing.price }}</p>
+            <a href="../product_details/{{ listing.id }}" class="btn btn-primary">View Details</a>
+          </div>
         </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">An item</li>
-            <li class="list-group-item">A second item</li>
-            <li class="list-group-item">A third item</li>
-        </ul>
-        <div class="card-body">
-            <a href="#" class="card-link">Card link</a>
-        </div>
-    </div>
-    {% endblock %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
