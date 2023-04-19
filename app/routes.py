@@ -13,6 +13,7 @@ import os
 from werkzeug.utils import secure_filename
 
 
+
 @app.before_request
 def before_request():
     if current_user.is_authenticated:
@@ -25,25 +26,32 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     listings = Listing.query.all()
-    ads = Ad.query.all()
     listings_images = ListingImage.query.all()
     location = Location.query.all()
     category = Category.query.all()
-    # storage_client = storage.Client.from_service_account_json(app.config['CRED_JSON'])
-    # bucket_name = app.config['BUCKET_NAME']
-    # image_urls = {}
+    latest_image_url = get_latest_image_url()
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images,
+                           location=location, category=category, latest_image_url=latest_image_url
+                           )
 
-    # for image in listings_images:
-    #     image_blob = storage_client.bucket(bucket_name).get_blob(image.filename)
-    #     if image_blob is not None:
-    #         image_urls[image.image_name] = image_blob.generate_signed_url(
-    #             version='v4',
-    #             expiration=datetime.timedelta(hours=1),
-    #             method='GET'
-    #         )
 
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services')
-                           , listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
+def get_latest_image_url():
+    storage_client = storage.Client.from_service_account_json(
+        app.config['CRED_JSON'])
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    blobs = bucket.list_blobs()
+    image_urls = []
+    for blob in blobs:
+        if blob.content_type.startswith('image/'):
+            image_urls.append(blob.public_url)
+
+    if image_urls:
+        latest_image_url = image_urls[-1]
+    else:
+        latest_image_url = None
+
+    return latest_image_url
+
 
 
 @app.route('/explore')
@@ -271,7 +279,9 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
-#This is useless.
+# This is useless.
+
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     form = AdminForm()
@@ -283,11 +293,8 @@ def admin():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('admin.html.j2', title=_('Admin'), form=form)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
-@app.route('/item', methods=['GET', 'POST'])
-def item():
-    return render_template('item.html.j2')
 
 @app.route('/product_details/<int:id>', methods=['GET', 'POST'])
 def product_details(id):
