@@ -42,8 +42,8 @@ def index():
     #             method='GET'
     #         )
 
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'),
-                           listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services')
+                           , listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
 
 
 @app.route('/explore')
@@ -271,7 +271,7 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
-
+#This is useless.
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     form = AdminForm()
@@ -283,8 +283,13 @@ def admin():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('admin.html.j2', title=_('Admin'), form=form)
-
+#-----------------------------------------------------------------------
 
 @app.route('/item', methods=['GET', 'POST'])
 def item():
     return render_template('item.html.j2')
+
+@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
+def product_details(id):
+    listing = Listing.query.get(id)
+    return render_template('product_details.html.j2', listing=listing, id=id)
