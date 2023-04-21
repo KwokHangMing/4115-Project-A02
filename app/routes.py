@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import abort, render_template, flash, redirect, url_for, request, g
+from flask import abort, render_template, flash, redirect, send_from_directory, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
@@ -39,7 +39,6 @@ def index():
                            listings=listings, listings_images=listings_images,
                            category=category, image_url=latest_image_url
                            )
-
 
 @app.route('/explore')
 @login_required
@@ -233,6 +232,8 @@ def all_categories():
 def sell():
     form = SellForm()
     if form.validate_on_submit():
+        # Get the current user
+        user = current_user
         image_file = form.image.data
         filename = secure_filename(image_file.filename)
         # Create a GCS client
@@ -252,10 +253,10 @@ def sell():
         listing = Listing(title=form.title.data,
                           description=form.description.data,
                           price=form.price.data,
-                          status='available',  # set the status to 'available'
-                          user=current_user,
+                          status='available',  # set the status to 'available',
                           category=category,
-                          location=form.location.data)
+                          location=form.location.data,
+                          user_id=user.id)  # Set the user_id attribute to the current user's id
         # Add the objects to the database
         db.session.add(category)
         db.session.add(image)
@@ -297,3 +298,4 @@ def product_details(id):
     return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url, 
                            listing_images=listing_images, category=category,
                            user=user)
+

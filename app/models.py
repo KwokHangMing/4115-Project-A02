@@ -95,20 +95,20 @@ class Post(db.Model):
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    listings_rel = db.relationship('Listing', backref='category_obj', lazy='dynamic')
+    listings_rel = db.relationship('Listing', backref='category_obj', lazy=True, overlaps="listings")
 
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('listings', lazy=True))
+    user = db.relationship('User', backref='listings', lazy=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    category = db.relationship('Category', backref=db.backref('listing', lazy=True))
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text)
+    category = db.relationship('Category', backref='listings', lazy=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='available')
+    status = db.Column(db.String(10), nullable=False, default='available')
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
-    location = db.Column(db.Text)
+    location = db.Column(db.String(100), nullable=False)
 
 
 class ListingImage(db.Model):
