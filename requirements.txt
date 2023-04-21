@@ -32,6 +32,7 @@ entrypoints==0.4
 executing==1.2.0
 fastjsonschema==2.16.2
 Flask==2.2.2
+Flask-Admin==1.6.1
 Flask-Babel==2.0.0
 Flask-Bootstrap==3.3.7.1
 Flask-Login==0.6.2
