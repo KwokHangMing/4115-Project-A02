@@ -218,9 +218,8 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-# our code here
 
-
+#Leo code here
 @app.route('/electronics')
 def electronics():
     return render_template('electronics.html.j2', title=_('Electronics'))
@@ -316,18 +315,33 @@ def admin():
 # -----------------------------------------------------------------------
 
 
-@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
+@app.route('/product_details/<int:id>')
 def product_details(id):
+    # Query the database for the listing with the specified ID
     listing = Listing.query.get(id)
-    listing_images = ListingImage.query.all()
     category = listing.category
     user = listing.user
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blobs = list(bucket.list_blobs())
-    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
-    latest_image_url = latest_blob.public_url
-    return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url,
-                           listing_images=listing_images, category=category,
-                           user=user)
+    # Query the database for the image paths for the current listing
+    listing_images = ListingImage.query.filter_by(listing_id=id).all()
+    # Create a dictionary to hold the URLs for each image path
+    image_urls = {}
+    # Loop through the image paths and get the URLs for each one
+    for image in listing_images:
+        # Get the blob for the current path
+        blob = bucket.blob(image.path)
+        # Get the URL for the blob
+        url = blob.public_url
+        # Add the URL to the image_urls dictionary
+        image_urls[image.path] = url
+
+    return render_template('product_details.html.j2', 
+                           title=listing.title, 
+                           listing=listing, 
+                           category=category,
+                           user=user,
+                           listing_images=listing_images,
+                           image_urls=image_urls)
+#done by leo

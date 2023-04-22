@@ -22,9 +22,15 @@
         <body>
             <div class="container my-5">
                 <div class="row">
-                    <div class="col-md-6">
-                        <img src="{{ image_url }}" class="img-fluid" alt="{{ listing.title }}"/>
-                    </div>
+                    {% for image in listing_images %}
+                        <div class="col-md-4">
+                            <div class="card mb-4 box-shadow">
+                                <img class="card-img-top"
+                                     src="{{ image_urls[image.path] }}"
+                                     alt="Listing Image">
+                            </div>
+                        </div>
+                    {% endfor %}
                     <div class="col-md-6">
                         <h1 class="mb-4">{{ listing.title }}</h1>
                         <h2 class="text-primary mb-4">${{ listing.price }}</h2>
