@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import abort, render_template, flash, redirect, send_from_directory, url_for, request, g
+from flask import abort, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
@@ -11,7 +11,6 @@ from app.models import User, Post, Category, Listing, ListingImage, Ad
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
-
 
 
 @app.before_request
@@ -31,14 +30,44 @@ def index():
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blobs = list(bucket.list_blobs())
-    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
-    latest_image_url = latest_blob.public_url
-    return render_template('index.html.j2', 
-                           title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), 
-                           listings=listings, listings_images=listings_images,
-                           category=category, image_url=latest_image_url
-                           )
+    listings = Listing.query.order_by(Listing.created_at.desc()).all()
+
+    # Create a dictionary to hold the image paths for each listing
+    images = {}
+
+    # Loop through the listings and get the image paths for each one
+    for listing in listings:
+        # Query the database for the image paths for the current listing
+        listing_images = ListingImage.query.filter_by(
+            listing_id=listing.id).all()
+
+        # Extract the image paths and add them to the images dictionary
+        images[listing.id] = [image.path for image in listing_images]
+
+    # Create a dictionary to hold the URLs for each image path
+    image_urls = {}
+
+    # Loop through the image paths and get the URLs for each one
+    for path in set(sum(images.values(), [])):
+        # Get the blob for the current path
+        blob = bucket.blob(path)
+
+        # Get the URL for the blob
+        url = blob.public_url
+
+        # Add the URL to the image_urls dictionary
+        image_urls[path] = url
+    print(image_urls)
+    return render_template('index.html.j2', listings=listings, images=images, image_urls=image_urls)
+    # blobs = list(bucket.list_blobs())
+    # latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
+    # latest_image_url = latest_blob.public_url
+    # return render_template('index.html.j2',
+    #                        title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'),
+    #                        listings=listings, listings_images=listings_images,
+    #                        category=category, image_url=latest_image_url
+    #                        )
+
 
 @app.route('/explore')
 @login_required
@@ -259,14 +288,18 @@ def sell():
                           user_id=user.id)  # Set the user_id attribute to the current user's id
         # Add the objects to the database
         db.session.add(category)
-        db.session.add(image)
         db.session.add(listing)
+        db.session.commit()
+        # Refresh the listing object to make sure that it is fully committed to the database
+        db.session.refresh(listing)
+        # Set the listing_id attribute of the ListingImage object
+        image.listing_id = listing.id
+        print(f"listing_id: {image.listing_id}")
+        db.session.add(image)
         db.session.commit()
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
-
-# This is useless.
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -287,7 +320,7 @@ def admin():
 def product_details(id):
     listing = Listing.query.get(id)
     listing_images = ListingImage.query.all()
-    category =  listing.category
+    category = listing.category
     user = listing.user
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
@@ -295,7 +328,6 @@ def product_details(id):
     blobs = list(bucket.list_blobs())
     latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
     latest_image_url = latest_blob.public_url
-    return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url, 
+    return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url,
                            listing_images=listing_images, category=category,
                            user=user)
-

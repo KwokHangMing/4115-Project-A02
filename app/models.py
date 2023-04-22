@@ -29,7 +29,7 @@ class User(UserMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    listing = db.relationship('Listing', backref='author', lazy='dynamic')
+    listing = db.relationship('Listing', backref='author', lazy='dynamic', overlaps="author,listing")
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'
@@ -100,9 +100,9 @@ class Category(db.Model):
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref='listings', lazy=True)
+    user = db.relationship('User', backref='listings', lazy=True, overlaps="author,listing")
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    category = db.relationship('Category', backref='listings', lazy=True)
+    category = db.relationship('Category', backref='listings', lazy=True, overlaps="category_obj,listings_rel")
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=False)
     price = db.Column(db.Integer, nullable=False)
@@ -113,11 +113,9 @@ class Listing(db.Model):
 
 class ListingImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'))
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
     listing = db.relationship('Listing', backref='images')
-    filename = db.Column(db.String(100))
     path = db.Column(db.String(100))
-    data = db.Column(db.LargeBinary)
 
 
 class Ad(db.Model):
