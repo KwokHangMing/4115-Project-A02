@@ -6,12 +6,11 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
-from app.models import User, Post, Category, Listing, ListingImage, Location, Ad
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm, ReportForm
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Report
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
-
 
 
 @app.before_request
@@ -287,3 +286,22 @@ def admin():
 def product_details(id):
     listing = Listing.query.get(id)
     return render_template('product_details.html.j2', listing=listing, id=id)
+
+# Alex coding here
+@app.route('/report', methods=['GET', 'POST'])
+def report():
+    if request.method == 'POST':
+        username = request.form['username']
+        user = User.query.filter_by(username=username).first()
+        if user and user != current_user:  # Added check for current user
+            message = request.form['message']
+            report = Report(user_id=user.id, message=message)
+            db.session.add(report)
+            db.session.commit()
+            flash('Report successfully submitted!', 'success')
+        elif user == current_user:  # Display an error message when a user tries to report themselves
+            flash('You cannot report yourself!', 'danger')
+        else:
+            flash('User does not exist!', 'danger')
+        return redirect(url_for('report'))
+    return render_template('report.html.j2')

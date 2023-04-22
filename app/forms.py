@@ -83,3 +83,8 @@ class AdminForm(FlaskForm):
     title = TextAreaField(_l('Title'), validators=[DataRequired()])
     image_url = TextAreaField(_l('Image URL'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
+
+# Alex coding here
+class ReportForm(FlaskForm):
+    message = StringField('report content', validators=[DataRequired()])
+    submit = SubmitField('submit report')
