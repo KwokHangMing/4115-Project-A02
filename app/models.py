@@ -137,3 +137,30 @@ class Ad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     image_url = db.Column(db.String(200))
+
+#(jonas)
+class Payment(db.Model):
+    __tablename__ = 'payments'
+    id = db.Column(db.Integer, primary_key=True)
+    owner = db.Column(db.String(50), nullable=False)
+    card_number = db.Column(db.String(50), nullable=False)
+    cvv = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<Payment {self.id}>'
+    
+
+
+
+class UserLocation(db.Model):
+    __tablename__ = 'UserLocation'
+    id = db.Column(db.Integer, primary_key=True)
+    city = db.Column(db.String(64), nullable=False)
+    district = db.Column(db.String(50), nullable=False)
+    address = db.Column(db.String(50), nullable=False)
+    postal_code = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<UserLocation {self.id}>'

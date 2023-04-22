@@ -94,20 +94,28 @@
     {% for listing in listings %}
       <div class="col-md-4 mb-4">
         <div class="card">
+        <img src="#" id="123" alt="your-image-description">
           {% if listing.listing_images %}
             <img class="card-img-top"
-                 src="{{ listingimage.data }}"
-                 alt="{{ listing.title }}">
+                 src="cwad_bucket_a02"
+                 alt="isting.title">
+                 
           {% endif %}
           <div class="card-body">
             <h5 class="card-title">{{ listing.title }}</h5>
             <p class="card-text">{{ listing.description }}</p>
             <p class="card-text font-weight-bold">${{ listing.price }}</p>
             <a href="../product_details/{{ listing.id }}" class="btn btn-primary">View Details</a>
+            <button><a href="{{ url_for('Payments') }}" target="_blank">buy</a></button>
           </div>
+          
         </div>
       </div>
+      <div class="item active">
     {% endfor %}
   </div>
 </div>
+
+ 
+ 
 {% endblock %}

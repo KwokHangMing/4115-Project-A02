@@ -7,7 +7,7 @@ from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
-from app.models import User, Post, Category, Listing, ListingImage, Location, Ad
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocation
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
@@ -42,8 +42,7 @@ def index():
     #             method='GET'
     #         )
 
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services')
-                           , listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
 
 
 @app.route('/explore')
@@ -232,6 +231,13 @@ def property():
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
 
+@app.route('/Payments')
+def Payments():
+    return render_template('Payments.html.j2', title=_('Payments'))
+
+@app.route('/UserLocation')
+def UserLocation():
+    return render_template('UserLocation.html.j2', title=_('UserLocation'))
 
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
@@ -271,7 +277,9 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
-#This is useless.
+# This is useless.
+
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     form = AdminForm()
@@ -283,13 +291,43 @@ def admin():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('admin.html.j2', title=_('Admin'), form=form)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
 
 @app.route('/item', methods=['GET', 'POST'])
 def item():
     return render_template('item.html.j2')
 
+
 @app.route('/product_details/<int:id>', methods=['GET', 'POST'])
 def product_details(id):
     listing = Listing.query.get(id)
     return render_template('product_details.html.j2', listing=listing, id=id)
+
+
+# ------
+@app.route('/payment', methods=['GET', 'POST'])
+def payment():
+    if request.method == 'POST':
+        owner = request.form['owner']
+        card_number = request.form['card_number']
+        cvv = request.form['cvv']
+        payment = Payment(owner=owner, card_number=card_number, cvv=cvv)
+        db.session.add(payment)
+        db.session.commit()
+        return 'Payment successful!'
+    return render_template('payment.html')
+
+@app.route('/UserLocation', methods=['GET', 'POST'])
+def create():
+    if request.method == 'POST':
+        city = request.form['city']
+        district = request.form['district']
+        address = request.form['address']
+        postal_code = request.form['postal_code']
+        location = Location(city=city, district=district, address=address, postal_code=postal_code)
+        db.session.add(location)
+        db.session.commit()
+        return 'ok!'
+    return render_template('UserLocation.html')
+

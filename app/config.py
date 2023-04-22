@@ -18,6 +18,7 @@ class Config(object):
     ADMINS = ['cywong@example.com']
     POSTS_PER_PAGE = 3
     LANGUAGES = ['en', 'es', 'zh']
-    BUCKET_NAME = 'cwad_static_a02'
+    BUCKET_NAME = 'cwad_bucket_a02'
     PROJECT_ID = 'cloud-web-application'
     CRED_JSON = 'credentials.json'
+
