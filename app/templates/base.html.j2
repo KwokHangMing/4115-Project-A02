@@ -95,6 +95,9 @@
                         </ul>
                     </div>
                     <ul class="nav justify-content-end fs-4">
+                        {% if current_user.is_authenticated and current_user.is_admin %}
+                            <a href="{{ url_for('admin') }}">Admin Panel</a>
+                        {% endif %}
                         {% if current_user.is_anonymous %}
                             <li class="nav-item">
                                 <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
@@ -131,22 +134,21 @@
                                role="button">Sell</a>
                         </ul>
                     </ul>
-            </nav>
-        {% endblock %}
-        {% block content %}
-            <div class="container">
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
-                    {% endif %}
-                {% endwith %}
-                {# application content needs to be provided in the app_content block #}
-                {% block app_content %}{% endblock %}
-            </div>
-        {% endblock %}
-        {% block scripts %}
-            {{ super() }}
-            {{ moment.include_moment() }}
-            {{ moment.lang(g.locale) }}
-        {% endblock %}
-        
+                </nav>
+            {% endblock %}
+            {% block content %}
+                <div class="container">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    {# application content needs to be provided in the app_content block #}
+                    {% block app_content %}{% endblock %}
+                </div>
+            {% endblock %}
+            {% block scripts %}
+                {{ super() }}
+                {{ moment.include_moment() }}
+                {{ moment.lang(g.locale) }}
+            {% endblock %}

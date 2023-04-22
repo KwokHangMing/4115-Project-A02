@@ -14,7 +14,7 @@ from flask_admin import Admin
 
 app = Flask(__name__)
 app.config.from_object(Config)
-admin = Admin(app)
+admin = Admin(app, name='Admin', template_mode='bootstrap3')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager()

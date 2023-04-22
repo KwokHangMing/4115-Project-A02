@@ -29,7 +29,9 @@ class User(UserMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    listing = db.relationship('Listing', backref='author', lazy='dynamic', overlaps="author,listing")
+    listings = db.relationship(
+        'Listing', backref='author', lazy='dynamic', overlaps="author,listing")
+
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'
@@ -76,6 +78,12 @@ class User(UserMixin, db.Model):
         except:
             return None
         return User.query.get(id)
+    
+    def is_admin():
+        if current_user.is_authenticated and current_user.is_admin:
+            return True
+        else:
+            return False
 
 @login.user_loader
 def load_user(id):
@@ -90,30 +98,40 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f'<Post {self.body}>'
-    
-#our code here(Leo)
+
+# our code here(Leo)
+
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    listings_rel = db.relationship('Listing', backref='category_obj', lazy=True, overlaps="listings")
+    category_listings = db.relationship(
+        'Listing', backref='category_obj', lazy=True, overlaps="category_obj")
+
+
 
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref='listings', lazy=True, overlaps="author,listing")
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    category = db.relationship('Category', backref='listings', lazy=True, overlaps="category_obj,listings_rel")
+    user = db.relationship('User', backref='user_listings',
+                           lazy=True, overlaps="author,listings")
+    category_id = db.Column(db.Integer, db.ForeignKey(
+        'category.id'), nullable=False)
+    category = db.relationship(
+        'Category', backref='category_listings_rel', lazy=True, overlaps="category_listings,category_obj")
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(10), nullable=False, default='available')
-    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+    created_at = db.Column(
+        db.TIMESTAMP, server_default=db.func.current_timestamp())
     location = db.Column(db.String(100), nullable=False)
 
 
 class ListingImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
+    listing_id = db.Column(db.Integer, db.ForeignKey(
+        'listing.id'), nullable=False)
     listing = db.relationship('Listing', backref='images')
     path = db.Column(db.String(100))
 
@@ -123,15 +141,19 @@ class Ad(db.Model):
     title = db.Column(db.String(100))
     image_url = db.Column(db.String(200))
 
-#Alex coding here
+# Alex coding here
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
+
 listing_tags = db.Table('listing_tags',
-    db.Column('listing_id', db.Integer, db.ForeignKey('listing.id'), primary_key=True),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
-)
+                        db.Column('listing_id', db.Integer, db.ForeignKey(
+                            'listing.id'), primary_key=True),
+                        db.Column('tag_id', db.Integer, db.ForeignKey(
+                            'tag.id'), primary_key=True)
+                        )
+
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -139,21 +161,27 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    buyer = db.relationship('User', foreign_keys=[buyer_id], backref=db.backref('reviews_given', lazy=True))
-    seller = db.relationship('User', foreign_keys=[seller_id], backref=db.backref('reviews_received', lazy=True))
+    buyer = db.relationship('User', foreign_keys=[
+                            buyer_id], backref=db.backref('reviews_given', lazy=True))
+    seller = db.relationship('User', foreign_keys=[
+                             seller_id], backref=db.backref('reviews_received', lazy=True))
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    sender = db.relationship('User', foreign_keys=[sender_id], backref=db.backref('sent_messages', lazy=True))
-    receiver = db.relationship('User', foreign_keys=[receiver_id], backref=db.backref('received_messages', lazy=True))
+    receiver_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'), nullable=False)
+    sender = db.relationship('User', foreign_keys=[
+                             sender_id], backref=db.backref('sent_messages', lazy=True))
+    receiver = db.relationship('User', foreign_keys=[
+                               receiver_id], backref=db.backref('received_messages', lazy=True))
+
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('notifications', lazy=True))
-
-
+    user = db.relationship(
+        'User', backref=db.backref('notifications', lazy=True))

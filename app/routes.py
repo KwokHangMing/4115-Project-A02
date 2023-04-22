@@ -4,13 +4,15 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import app, db
+from app import app, db, admin
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
+from flask_admin.contrib.sqla import ModelView
 from app.models import User, Post, Category, Listing, ListingImage, Ad
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
+
 
 
 @app.before_request
@@ -25,8 +27,6 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     listings = Listing.query.all()
-    listings_images = ListingImage.query.all()
-    category = Category.query.all()
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
@@ -67,7 +67,7 @@ def index():
     #                        listings=listings, listings_images=listings_images,
     #                        category=category, image_url=latest_image_url
     #                        )
-
+#rewrite by leo
 
 @app.route('/explore')
 @login_required
@@ -301,18 +301,19 @@ def sell():
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
+
+class UserView(ModelView):
+    column_searchable_list = ['username', 'email']
+    column_filters = ['username', 'email']
+
+admin.add_view(UserView(User, db.session))
+
+@app.route('/administrator', methods=['GET', 'POST'])
+@login_required
+def administrator():
     form = AdminForm()
-    if form.validate_on_submit():
-        title = form.title.data
-        image_url = form.image_url.data
-        ad = Ad(title=title, image_url=image_url)
-        db.session.add(ad)
-        db.session.commit()
-        return redirect(url_for('index'))
     return render_template('admin.html.j2', title=_('Admin'), form=form)
-# -----------------------------------------------------------------------
+
 
 
 @app.route('/product_details/<int:id>')

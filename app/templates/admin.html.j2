@@ -1,8 +1,23 @@
 {% include 'base.html.j2' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
+
+<h1>Welcome to the Admin Page</h1>
   <div class="row">
     <div class="col-md-4">{{ wtf.quick_form(form) }}</div>
+  </div>
+
+  <h1>{{ title }}</h1>
+  <div class="container-fluid">
+    {{ get_flashed_messages() }}
+    <div class="row">
+      <div class="col-md-2">
+        {{ admin_nav() }}
+      </div>
+      <div class="col-md-10">
+        {{ admin_view() }}
+      </div>
+    </div>
   </div>
 {% endblock %}
 {% extends 'footer.html.j2' %}
