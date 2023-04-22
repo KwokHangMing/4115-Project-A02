@@ -144,8 +144,7 @@ class Tag(db.Model):
     name = db.Column(db.String(50), nullable=False)
 listing_tags = db.Table('listing_tags',
     db.Column('listing_id', db.Integer, db.ForeignKey('listing.id'), primary_key=True),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
-)
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True))
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
