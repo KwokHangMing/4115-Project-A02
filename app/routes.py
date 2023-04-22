@@ -7,7 +7,7 @@ from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm, ReportForm
-from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Report
+from app.models import Notification, User, Post, Category, Listing, ListingImage, Location, Ad, Report
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
@@ -305,3 +305,19 @@ def report():
             flash('User does not exist!', 'danger')
         return redirect(url_for('report'))
     return render_template('report.html.j2')
+
+@app.route('/notifications')
+def notifications():
+    notifications = Notification.query.all()
+    return render_template('notifications.html.j2', notifications=notifications)
+
+@app.route('/notifications/create', methods=['GET', 'POST'])
+def create_notification():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        user_id = 1 # replace with the actual user id
+        notification = Notification(content=content, user_id=user_id)
+        db.session.add(notification)
+        db.session.commit()
+        return redirect(url_for('notifications'))
+    return render_template('create_notification.html.j2')
