@@ -102,36 +102,23 @@ class Listing(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('listings', lazy=True))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    category = db.relationship('Category', backref=db.backref('listings', lazy=True))
+    category = db.relationship('Category', backref=db.backref('listing', lazy=True))
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(50), nullable=False, default='available')
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
-
-    # def __init__(self, title, description, price, condition, user=None, category=None):
-    #     self.title = title
-    #     self.description = description
-    #     self.price = price
-    #     self.condition = condition
-    #     self.user = user or current_user
-    #     self.category = category
+    location = db.Column(db.Text)
 
 
 class ListingImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'))
+    listing = db.relationship('Listing', backref='images')
     filename = db.Column(db.String(100))
     path = db.Column(db.String(100))
     data = db.Column(db.LargeBinary)
 
-    def get_data_uri(self):
-        data_uri = base64.b64encode(self.data).decode('utf-8')
-        return f"data:image/jpeg;base64,{data_uri}"
-
-class Location(db.Model):
-    location_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
 
 class Ad(db.Model):
     id = db.Column(db.Integer, primary_key=True)

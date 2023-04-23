@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, ReviewForm, SellForm, AdminForm, ReportForm
+ResetPasswordRequestForm, ResetPasswordForm, ReviewForm, SellForm, AdminForm, ReportForm
 from app.models import Notification, Review, User, Post, Category, Listing, ListingImage, Location, Ad, Report
 from app.email import send_password_reset_email
 import os
@@ -26,7 +26,6 @@ def before_request():
 def index():
     listings = Listing.query.all()
     listings_images = ListingImage.query.all()
-    location = Location.query.all()
     category = Category.query.all()
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
@@ -34,9 +33,10 @@ def index():
     blobs = list(bucket.list_blobs())
     latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
     latest_image_url = latest_blob.public_url
-    # latest_image_url = get_latest_image_url()
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images,
-                           location=location, category=category, image_url=latest_image_url
+    return render_template('index.html.j2', 
+                           title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), 
+                           listings=listings, listings_images=listings_images,
+                           category=category, image_url=latest_image_url
                            )
 
 
@@ -253,13 +253,12 @@ def sell():
                           price=form.price.data,
                           status='available',  # set the status to 'available'
                           user=current_user,
-                          category=category)
+                          category=category,
+                          location=form.location.data)
         # Add the objects to the database
-        location_name = Location(name=form.location.name)
         db.session.add(category)
         db.session.add(image)
         db.session.add(listing)
-        db.session.add(location_name)
         db.session.commit()
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
@@ -285,6 +284,20 @@ def admin():
 @app.route('/product_details/<int:id>', methods=['GET', 'POST'])
 def product_details(id):
     listing = Listing.query.get(id)
+
+    listing_images = ListingImage.query.all()
+    category =  listing.category
+    user = listing.user
+    storage_client = storage.Client.from_service_account_json(
+        app.config['CRED_JSON'])
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    blobs = list(bucket.list_blobs())
+    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
+    latest_image_url = latest_blob.public_url
+    return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url, 
+                           listing_images=listing_images, category=category,
+                           user=user)
+
     return render_template('product_details.html.j2', listing=listing, id=id)
 
 # Alex coding here
