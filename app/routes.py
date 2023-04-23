@@ -6,12 +6,11 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 from app import admin_required, app, db, admin
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
-from flask_admin.contrib.sqla import ModelView
-from app.models import User, Post, Category, Listing, ListingImage, Ad
+    ResetPasswordRequestForm, ResetPasswordForm, ReviewForm, SellForm, AdminForm, ReportForm
+from app.models import Notification, Review, User, Post, Category, Listing, ListingImage, Location, Ad, Report
 from app.email import send_password_reset_email
-import os
 from werkzeug.utils import secure_filename
+from flask_admin.contrib.sqla import ModelView
 
 
 
@@ -59,14 +58,6 @@ def index():
         image_urls[path] = url
     print(image_urls)
     return render_template('index.html.j2', listings=listings, images=images, image_urls=image_urls)
-    # blobs = list(bucket.list_blobs())
-    # latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
-    # latest_image_url = latest_blob.public_url
-    # return render_template('index.html.j2',
-    #                        title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'),
-    #                        listings=listings, listings_images=listings_images,
-    #                        category=category, image_url=latest_image_url
-    #                        )
 #rewrite by leo
 
 @app.route('/explore')
@@ -360,3 +351,57 @@ def product_details(id):
                            listing_images=listing_images,
                            image_urls=image_urls)
 #done by leo
+# Alex coding here
+@app.route('/report', methods=['GET', 'POST'])
+def report():
+    if request.method == 'POST':
+        username = request.form['username']
+        user = User.query.filter_by(username=username).first()
+        if user and user != current_user:  # Added check for current user
+            message = request.form['message']
+            report = Report(user_id=user.id, message=message)
+            db.session.add(report)
+            db.session.commit()
+            flash('Report successfully submitted!', 'success')
+        elif user == current_user:  # Display an error message when a user tries to report themselves
+            flash('You cannot report yourself!', 'danger')
+        else:
+            flash('User does not exist!', 'danger')
+        return redirect(url_for('report'))
+    return render_template('report.html.j2')
+
+
+@app.route('/notifications')
+def notifications():
+    notifications = Notification.query.all()
+    return render_template('notifications.html.j2', notifications=notifications)
+
+
+@app.route('/notifications/create', methods=['GET', 'POST'])
+def create_notification():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        user_id = 1  # replace with the actual user id
+        notification = Notification(content=content, user_id=user_id)
+        db.session.add(notification)
+        db.session.commit()
+        return redirect(url_for('notifications'))
+    return render_template('create_notification.html.j2')
+
+@app.route('/review', methods=['GET', 'POST'])
+def review():
+    form = ReviewForm()
+    if form.validate_on_submit():
+        seller_id = form.seller.data
+        content = form.content.data
+        rating = form.rating.data
+        if seller_id == str(current_user.id):
+            flash('You cannot rate yourself!', 'danger')
+        else:
+            review = Review(seller_id=seller_id, buyer_id=current_user.id, content=content, rating=rating)
+            db.session.add(review)
+            db.session.commit()
+            flash('Your review has been submitted!', 'success')
+            return redirect(url_for('review'))
+    return render_template('review.html.j2', form=form)
+
