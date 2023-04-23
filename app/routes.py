@@ -6,8 +6,8 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm, ReportForm
-from app.models import Notification, User, Post, Category, Listing, ListingImage, Location, Ad, Report
+    ResetPasswordRequestForm, ResetPasswordForm, ReviewForm, SellForm, AdminForm, ReportForm
+from app.models import Notification, Review, User, Post, Category, Listing, ListingImage, Location, Ad, Report
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
@@ -288,6 +288,8 @@ def product_details(id):
     return render_template('product_details.html.j2', listing=listing, id=id)
 
 # Alex coding here
+
+
 @app.route('/report', methods=['GET', 'POST'])
 def report():
     if request.method == 'POST':
@@ -306,18 +308,37 @@ def report():
         return redirect(url_for('report'))
     return render_template('report.html.j2')
 
+
 @app.route('/notifications')
 def notifications():
     notifications = Notification.query.all()
     return render_template('notifications.html.j2', notifications=notifications)
 
+
 @app.route('/notifications/create', methods=['GET', 'POST'])
 def create_notification():
     if request.method == 'POST':
         content = request.form.get('content')
-        user_id = 1 # replace with the actual user id
+        user_id = 1  # replace with the actual user id
         notification = Notification(content=content, user_id=user_id)
         db.session.add(notification)
         db.session.commit()
         return redirect(url_for('notifications'))
     return render_template('create_notification.html.j2')
+
+@app.route('/review', methods=['GET', 'POST'])
+def review():
+    form = ReviewForm()
+    if form.validate_on_submit():
+        seller_id = form.seller.data
+        content = form.content.data
+        rating = form.rating.data
+        if seller_id == str(current_user.id):
+            flash('You cannot rate yourself!', 'danger')
+        else:
+            review = Review(seller_id=seller_id, buyer_id=current_user.id, content=content, rating=rating)
+            db.session.add(review)
+            db.session.commit()
+            flash('Your review has been submitted!', 'success')
+            return redirect(url_for('review'))
+    return render_template('review.html.j2', form=form)

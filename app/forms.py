@@ -1,3 +1,4 @@
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField, SelectField, FileField, IntegerField, HiddenField
@@ -88,3 +89,12 @@ class AdminForm(FlaskForm):
 class ReportForm(FlaskForm):
     message = StringField('report content', validators=[DataRequired()])
     submit = SubmitField('submit report')
+
+class ReviewForm(FlaskForm):
+    seller = SelectField('Seller', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    rating = IntegerField('Rating', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.seller.choices = [(str(u.id), u.username) for u in User.query.all() if u != current_user]
