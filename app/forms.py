@@ -1,8 +1,9 @@
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField, SelectField, FileField, IntegerField, HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
-    Length
+    Length, NumberRange
 from flask_wtf.file import FileRequired
 from flask_babel import _, lazy_gettext as _l
 from app.models import User
@@ -83,3 +84,17 @@ class AdminForm(FlaskForm):
     title = TextAreaField(_l('Title'), validators=[DataRequired()])
     image_url = TextAreaField(_l('Image URL'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
+
+# Alex coding here
+class ReportForm(FlaskForm):
+    message = StringField('report content', validators=[DataRequired()])
+    submit = SubmitField('submit report')
+
+class ReviewForm(FlaskForm):
+    seller = SelectField('Seller', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    rating = IntegerField('Rating (Min=1, Max=5)', validators=[DataRequired(), NumberRange(min=1, max=5)])
+    submit = SubmitField('Submit')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.seller.choices = [(str(u.id), u.username) for u in User.query.all() if u != current_user]
