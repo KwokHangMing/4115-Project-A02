@@ -55,7 +55,7 @@ def index():
         # Add the URL to the image_urls dictionary
         image_urls[path] = url
     print(image_urls)
-    return render_template('index.html.j2', listings=listings, images=images, image_urls=image_urls)
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, images=images, image_urls=image_urls)
 #rewrite by leo
 
 @app.route('/explore')
