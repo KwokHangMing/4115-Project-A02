@@ -4,13 +4,11 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import admin_required, app, db, admin
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, ReviewForm, SellForm, AdminForm, ReportForm
-from app.models import Notification, Review, User, Post, Category, Listing, ListingImage, Location, Ad, Report
+from app import admin_required, app, db
+from app.forms import *
+from app.models import *
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
-from flask_admin.contrib.sqla import ModelView
 
 
 
