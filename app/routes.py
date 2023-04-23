@@ -288,8 +288,6 @@ def product_details(id):
     return render_template('product_details.html.j2', listing=listing, id=id)
 
 # Alex coding here
-
-
 @app.route('/report', methods=['GET', 'POST'])
 def report():
     if request.method == 'POST':
