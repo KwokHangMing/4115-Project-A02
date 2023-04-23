@@ -45,4 +45,26 @@
             </li>
         </ul>
     </nav>
+    <h2>Reviews Received:</h2>
+{% if user.reviews_received %}
+    <ul>
+    {% for review in user.reviews_received %}
+        <li>Content: {{ review.content }}</li>
+        <li>Rating: {{ review.rating }}/5</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No reviews yet.</p>
+{% endif %}
+<h2>Reviews Given:</h2>
+{% if user.reviews_given %}
+    <ul>
+    {% for review in user.reviews_given %}
+        <li>Content: {{ review.content }}</li>
+        <li>Rating: {{ review.rating }}/5</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No reviews yet.</p>
+{% endif %}
 {% endblock %}
