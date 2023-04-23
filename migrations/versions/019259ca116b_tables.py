@@ -1,8 +1,8 @@
-"""empty message
+"""tables
 
-Revision ID: d257cfd04645
+Revision ID: 019259ca116b
 Revises: 
-Create Date: 2023-04-21 09:29:36.399795
+Create Date: 2023-04-23 09:44:47.827433
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd257cfd04645'
+revision = '019259ca116b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,11 +28,6 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('location',
-    sa.Column('location_id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=100), nullable=True),
-    sa.PrimaryKeyConstraint('location_id')
     )
     op.create_table('tag',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -62,11 +57,12 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=255), nullable=False),
-    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('title', sa.String(length=100), nullable=False),
+    sa.Column('description', sa.String(length=500), nullable=False),
     sa.Column('price', sa.Integer(), nullable=False),
-    sa.Column('status', sa.String(length=50), nullable=False),
+    sa.Column('status', sa.String(length=10), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
+    sa.Column('location', sa.String(length=100), nullable=False),
     sa.ForeignKeyConstraint(['category_id'], ['category.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -110,10 +106,8 @@ def upgrade():
     )
     op.create_table('listing_image',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('listing_id', sa.Integer(), nullable=True),
-    sa.Column('filename', sa.String(length=100), nullable=True),
+    sa.Column('listing_id', sa.Integer(), nullable=False),
     sa.Column('path', sa.String(length=100), nullable=True),
-    sa.Column('data', sa.LargeBinary(), nullable=True),
     sa.ForeignKeyConstraint(['listing_id'], ['listing.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -146,7 +140,6 @@ def downgrade():
 
     op.drop_table('user')
     op.drop_table('tag')
-    op.drop_table('location')
     op.drop_table('category')
     op.drop_table('ad')
     # ### end Alembic commands ###

@@ -4,13 +4,14 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import app, db
+from app import admin_required, app, db, admin
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, ReviewForm, SellForm, AdminForm, ReportForm
 from app.models import Notification, Review, User, Post, Category, Listing, ListingImage, Location, Ad, Report
 from app.email import send_password_reset_email
-import os
 from werkzeug.utils import secure_filename
+from flask_admin.contrib.sqla import ModelView
+
 
 
 @app.before_request
@@ -25,20 +26,39 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     listings = Listing.query.all()
-    listings_images = ListingImage.query.all()
-    location = Location.query.all()
-    category = Category.query.all()
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blobs = list(bucket.list_blobs())
-    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
-    latest_image_url = latest_blob.public_url
-    # latest_image_url = get_latest_image_url()
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images,
-                           location=location, category=category, image_url=latest_image_url
-                           )
+    listings = Listing.query.order_by(Listing.created_at.desc()).all()
 
+    # Create a dictionary to hold the image paths for each listing
+    images = {}
+
+    # Loop through the listings and get the image paths for each one
+    for listing in listings:
+        # Query the database for the image paths for the current listing
+        listing_images = ListingImage.query.filter_by(
+            listing_id=listing.id).all()
+
+        # Extract the image paths and add them to the images dictionary
+        images[listing.id] = [image.path for image in listing_images]
+
+    # Create a dictionary to hold the URLs for each image path
+    image_urls = {}
+
+    # Loop through the image paths and get the URLs for each one
+    for path in set(sum(images.values(), [])):
+        # Get the blob for the current path
+        blob = bucket.blob(path)
+
+        # Get the URL for the blob
+        url = blob.public_url
+
+        # Add the URL to the image_urls dictionary
+        image_urls[path] = url
+    print(image_urls)
+    return render_template('index.html.j2', listings=listings, images=images, image_urls=image_urls)
+#rewrite by leo
 
 @app.route('/explore')
 @login_required
@@ -189,9 +209,8 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-# our code here
 
-
+#Leo code here
 @app.route('/electronics')
 def electronics():
     return render_template('electronics.html.j2', title=_('Electronics'))
@@ -232,6 +251,8 @@ def all_categories():
 def sell():
     form = SellForm()
     if form.validate_on_submit():
+        # Get the current user
+        user = current_user
         image_file = form.image.data
         filename = secure_filename(image_file.filename)
         # Create a GCS client
@@ -251,45 +272,62 @@ def sell():
         listing = Listing(title=form.title.data,
                           description=form.description.data,
                           price=form.price.data,
-                          status='available',  # set the status to 'available'
-                          user=current_user,
-                          category=category)
+                          status='available',  # set the status to 'available',
+                          category=category,
+                          location=form.location.data,
+                          user_id=user.id)  # Set the user_id attribute to the current user's id
         # Add the objects to the database
-        location_name = Location(name=form.location.name)
         db.session.add(category)
-        db.session.add(image)
         db.session.add(listing)
-        db.session.add(location_name)
+        db.session.commit()
+        # Refresh the listing object to make sure that it is fully committed to the database
+        db.session.refresh(listing)
+        # Set the listing_id attribute of the ListingImage object
+        image.listing_id = listing.id
+        print(f"listing_id: {image.listing_id}")
+        db.session.add(image)
         db.session.commit()
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
-# This is useless.
-
-
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
+@app.route('/administrator')
+@admin_required
+def administrator():
     form = AdminForm()
-    if form.validate_on_submit():
-        title = form.title.data
-        image_url = form.image_url.data
-        ad = Ad(title=title, image_url=image_url)
-        db.session.add(ad)
-        db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('admin.html.j2', title=_('Admin'), form=form)
-# -----------------------------------------------------------------------
+    return render_template('administrator.html.j2', title=_('administrator'), form=form)
 
-
-@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
+@app.route('/product_details/<int:id>')
 def product_details(id):
+    # Query the database for the listing with the specified ID
     listing = Listing.query.get(id)
-    return render_template('product_details.html.j2', listing=listing, id=id)
+    category = listing.category
+    user = listing.user
+    storage_client = storage.Client.from_service_account_json(
+        app.config['CRED_JSON'])
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    # Query the database for the image paths for the current listing
+    listing_images = ListingImage.query.filter_by(listing_id=id).all()
+    # Create a dictionary to hold the URLs for each image path
+    image_urls = {}
+    # Loop through the image paths and get the URLs for each one
+    for image in listing_images:
+        # Get the blob for the current path
+        blob = bucket.blob(image.path)
+        # Get the URL for the blob
+        url = blob.public_url
+        # Add the URL to the image_urls dictionary
+        image_urls[image.path] = url
 
+    return render_template('product_details.html.j2', 
+                           title=listing.title, 
+                           listing=listing, 
+                           category=category,
+                           user=user,
+                           listing_images=listing_images,
+                           image_urls=image_urls)
+#done by leo
 # Alex coding here
-
-
 @app.route('/report', methods=['GET', 'POST'])
 def report():
     if request.method == 'POST':
@@ -342,3 +380,4 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
+

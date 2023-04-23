@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 from hashlib import md5
 from app import app, db, login
 import jwt
-import base64
 from flask_login import UserMixin, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,8 +16,9 @@ followers = db.Table(
 
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
@@ -29,7 +29,9 @@ class User(UserMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    listing = db.relationship('Listing', backref='author', lazy='dynamic')
+    listings = db.relationship(
+        'Listing', back_populates='user')
+    is_admin = db.Column(db.Boolean(), default=False)
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'
@@ -77,12 +79,14 @@ class User(UserMixin, db.Model):
             return None
         return User.query.get(id)
 
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
 
 class Post(db.Model):
+    __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -90,61 +94,59 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f'<Post {self.body}>'
-    
-#our code here(Leo)
+
+# our code here(Leo)
+
+
 class Category(db.Model):
+    __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
+    listings = db.relationship('Listing', back_populates="category")
     name = db.Column(db.String(255), nullable=False)
-    listings_rel = db.relationship('Listing', backref='category_obj', lazy='dynamic')
 
 class Listing(db.Model):
+    __tablename__ = 'listing'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('listings', lazy=True))
+    user = db.relationship('User', back_populates='listings')
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    category = db.relationship('Category', backref=db.backref('listings', lazy=True))
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text)
+    category = db.relationship('Category', back_populates='listings')
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='available')
+    status = db.Column(db.String(10), nullable=False, default='available')
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
-
-    # def __init__(self, title, description, price, condition, user=None, category=None):
-    #     self.title = title
-    #     self.description = description
-    #     self.price = price
-    #     self.condition = condition
-    #     self.user = user or current_user
-    #     self.category = category
+    location = db.Column(db.String(100), nullable=False)
+    listingimage = db.relationship('ListingImage', uselist=False, back_populates='image')
 
 
 class ListingImage(db.Model):
+    __tablename__ = 'listing_image'
     id = db.Column(db.Integer, primary_key=True)
-    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'))
-    filename = db.Column(db.String(100))
+    listing_id = db.Column(db.Integer, db.ForeignKey(
+        'listing.id'), nullable=False)
+    image = db.relationship('Listing', uselist=False, back_populates='listingimage')
     path = db.Column(db.String(100))
-    data = db.Column(db.LargeBinary)
 
-    def get_data_uri(self):
-        data_uri = base64.b64encode(self.data).decode('utf-8')
-        return f"data:image/jpeg;base64,{data_uri}"
-
-class Location(db.Model):
-    location_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
 
 class Ad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     image_url = db.Column(db.String(200))
 
-#Alex coding here
+# Alex coding here
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
+
+
 listing_tags = db.Table('listing_tags',
-    db.Column('listing_id', db.Integer, db.ForeignKey('listing.id'), primary_key=True),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True))
+                        db.Column('listing_id', db.Integer, db.ForeignKey(
+                            'listing.id'), primary_key=True),
+                        db.Column('tag_id', db.Integer, db.ForeignKey(
+                            'tag.id'), primary_key=True)
+                        )
+
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -152,21 +154,27 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    buyer = db.relationship('User', foreign_keys=[buyer_id], backref=db.backref('reviews_given', lazy=True))
-    seller = db.relationship('User', foreign_keys=[seller_id], backref=db.backref('reviews_received', lazy=True))
+    buyer = db.relationship('User', foreign_keys=[
+                            buyer_id], backref=db.backref('reviews_given', lazy=True))
+    seller = db.relationship('User', foreign_keys=[
+                             seller_id], backref=db.backref('reviews_received', lazy=True))
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'), nullable=False)
+    sender = db.relationship('User', foreign_keys=[
+                             sender_id], backref=db.backref('sent_messages', lazy=True))
+    receiver = db.relationship('User', foreign_keys=[
+                               receiver_id], backref=db.backref('received_messages', lazy=True))
+
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('notifications', lazy=True))
-
-class Report(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    message = db.Column(db.String(200), nullable=False)
-    def __repr__(self):
-        return f"Report('{self.message}')"
-
-
-
+    user = db.relationship(
+        'User', backref=db.backref('notifications', lazy=True))
