@@ -1,16 +1,17 @@
 import logging
 from logging.handlers import RotatingFileHandler, SMTPHandler
 import os
-from flask import Flask, request
+from flask import Flask, redirect, request, url_for
 from app.config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_babel import Babel
 from flask_admin import Admin
+from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -56,6 +57,14 @@ if not app.debug:
 @babel.localeselector
 def get_locale():
     return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # You must keep the routes at the end.
 from app import routes, errors

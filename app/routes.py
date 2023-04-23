@@ -4,7 +4,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import app, db, admin
+from app import admin_required, app, db, admin
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
 from flask_admin.contrib.sqla import ModelView
@@ -300,21 +300,11 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
-
-
-class UserView(ModelView):
-    column_searchable_list = ['username', 'email']
-    column_filters = ['username', 'email']
-
-admin.add_view(UserView(User, db.session))
-
-@app.route('/administrator', methods=['GET', 'POST'])
-@login_required
+@app.route('/administrator')
+@admin_required
 def administrator():
     form = AdminForm()
-    return render_template('admin.html.j2', title=_('Admin'), form=form)
-
-
+    return render_template('administrator.html.j2', title=_('administrator'), form=form)
 
 @app.route('/product_details/<int:id>')
 def product_details(id):

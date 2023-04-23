@@ -96,7 +96,7 @@
                     </div>
                     <ul class="nav justify-content-end fs-4">
                         {% if current_user.is_authenticated and current_user.is_admin %}
-                            <a href="{{ url_for('admin') }}">Admin Panel</a>
+                            <a href="{{ url_for('administrator') }}">Admin Panel</a>
                         {% endif %}
                         {% if current_user.is_anonymous %}
                             <li class="nav-item">

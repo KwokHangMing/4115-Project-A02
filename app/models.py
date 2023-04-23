@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 from hashlib import md5
 from app import app, db, login
 import jwt
-import base64
 from flask_login import UserMixin, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,6 +16,7 @@ followers = db.Table(
 
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -30,8 +30,8 @@ class User(UserMixin, db.Model):
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     listings = db.relationship(
-        'Listing', backref='author', lazy='dynamic', overlaps="author,listing")
-
+        'Listing', back_populates='user')
+    is_admin = db.Column(db.Boolean(), default=False)
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'
@@ -78,12 +78,7 @@ class User(UserMixin, db.Model):
         except:
             return None
         return User.query.get(id)
-    
-    def is_admin():
-        if current_user.is_authenticated and current_user.is_admin:
-            return True
-        else:
-            return False
+
 
 @login.user_loader
 def load_user(id):
@@ -91,6 +86,7 @@ def load_user(id):
 
 
 class Post(db.Model):
+    __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -103,36 +99,33 @@ class Post(db.Model):
 
 
 class Category(db.Model):
+    __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
+    listings = db.relationship('Listing', back_populates="category")
     name = db.Column(db.String(255), nullable=False)
-    category_listings = db.relationship(
-        'Listing', backref='category_obj', lazy=True, overlaps="category_obj")
-
-
 
 class Listing(db.Model):
+    __tablename__ = 'listing'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref='user_listings',
-                           lazy=True, overlaps="author,listings")
-    category_id = db.Column(db.Integer, db.ForeignKey(
-        'category.id'), nullable=False)
-    category = db.relationship(
-        'Category', backref='category_listings_rel', lazy=True, overlaps="category_listings,category_obj")
+    user = db.relationship('User', back_populates='listings')
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+    category = db.relationship('Category', back_populates='listings')
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(10), nullable=False, default='available')
-    created_at = db.Column(
-        db.TIMESTAMP, server_default=db.func.current_timestamp())
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
     location = db.Column(db.String(100), nullable=False)
+    listingimage = db.relationship('ListingImage', uselist=False, back_populates='image')
 
 
 class ListingImage(db.Model):
+    __tablename__ = 'listing_image'
     id = db.Column(db.Integer, primary_key=True)
     listing_id = db.Column(db.Integer, db.ForeignKey(
         'listing.id'), nullable=False)
-    listing = db.relationship('Listing', backref='images')
+    image = db.relationship('Listing', uselist=False, back_populates='listingimage')
     path = db.Column(db.String(100))
 
 
