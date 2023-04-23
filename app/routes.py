@@ -306,6 +306,30 @@ def administrator():
     form = AdminForm()
     return render_template('administrator.html.j2', title=_('administrator'), form=form)
 
+@app.route('/administrator/dashboard/<int:id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_product(id):
+    product = Product.query.get_or_404(id)
+    form = ProductForm(obj=product)
+    if form.validate_on_submit():
+        product.name = form.name.data
+        product.price = form.price.data
+        db.session.add(product)
+        db.session.commit()
+        flash('The product has been updated.')
+        return redirect(url_for('products'))
+    return render_template('admin/edit_product.html', form=form, product=product)
+
+# Route for deleting a product
+@app.route('/administrator/dashboard/<int:id>/delete', methods=['POST'])
+@admin_required
+def delete_product(id):
+    product = Product.query.get_or_404(id)
+    db.session.delete(product)
+    db.session.commit()
+    flash('The product has been deleted.')
+    return redirect(url_for('products'))
+
 @app.route('/product_details/<int:id>')
 def product_details(id):
     # Query the database for the listing with the specified ID
