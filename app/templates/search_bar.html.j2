@@ -1,0 +1,30 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+    <!-- Alex coding here -->
+    <div class="container">
+        <div class="row">
+            <div class="col align-self-start">
+                <div class="search-1"></div>
+                <form action="/search" method="GET" class="d-flex">
+                    <input type="search"
+                           name="q"
+                           class="form-control me-2"
+                           placeholder="Search for anything and everying"/>
+                    <div class="col align-self-start>
+                        <div>
+                            <div class="search-2"></div>
+                            <form action="/search" method="GET" class="d-flex">
+                                <input type="search"
+                                       name="q"
+                                       class="form-control me-2"
+                                       placeholder="All of Hong Kong"/>
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </form>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
