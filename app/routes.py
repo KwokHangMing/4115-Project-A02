@@ -246,38 +246,28 @@ def Discounts():
 def sell():
     form = SellForm()
     if form.validate_on_submit():
-        # Get the current user
         user = current_user
         image_file = form.image.data
         filename = secure_filename(image_file.filename)
-        # Create a GCS client
         storage_client = storage.Client.from_service_account_json(
             app.config['CRED_JSON'])
         bucket = storage_client.bucket(app.config['BUCKET_NAME'])
-        # Set the blob name or path of the file to upload
         blob = bucket.blob(f'images/{filename}')
-        # Upload the file to the blob
         blob.upload_from_string(
             image_file.read(), content_type=image_file.content_type)
-        # Create the ListingImage object with the filename
         image = ListingImage(path=f'images/{filename}')
-        # Get the category object based on the selected category name
         category = Category(name=form.category.data)
-        # Create the Listing object with the form data, user and category objects
         listing = Listing(title=form.title.data,
                           description=form.description.data,
                           price=form.price.data,
-                          status='available',  # set the status to 'available',
+                          status='available',
                           category=category,
                           location=form.location.data,
-                          user_id=user.id)  # Set the user_id attribute to the current user's id
-        # Add the objects to the database
+                          user_id=user.id)  
         db.session.add(category)
         db.session.add(listing)
         db.session.commit()
-        # Refresh the listing object to make sure that it is fully committed to the database
         db.session.refresh(listing)
-        # Set the listing_id attribute of the ListingImage object
         image.listing_id = listing.id
         print(f"listing_id: {image.listing_id}")
         db.session.add(image)
@@ -295,24 +285,17 @@ def administrator():
 
 @app.route('/product_details/<int:id>')
 def product_details(id):
-    # Query the database for the listing with the specified ID
     listing = Listing.query.get(id)
     category = listing.category
     user = listing.user
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    # Query the database for the image paths for the current listing
     listing_images = ListingImage.query.filter_by(listing_id=id).all()
-    # Create a dictionary to hold the URLs for each image path
     image_urls = {}
-    # Loop through the image paths and get the URLs for each one
     for image in listing_images:
-        # Get the blob for the current path
         blob = bucket.blob(image.path)
-        # Get the URL for the blob
         url = blob.public_url
-        # Add the URL to the image_urls dictionary
         image_urls[image.path] = url
     return render_template('product_details.html.j2', 
                            title=listing.title, 
