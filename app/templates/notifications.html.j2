@@ -1,0 +1,12 @@
+{% extends "base.html.j2" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+<!-- Alex coding here -->
+<h1>All Notifications</h1>
+    {% for notification in notifications %}
+        <div class="notification">
+            <p>{{ notification.content }}</p>
+        </div>
+    {% endfor %}
+    <a href="{{ url_for('create_notification') }}" class="btn btn-primary">Create Notification</a>
+{% endblock %}
