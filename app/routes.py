@@ -6,9 +6,8 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 
 from app import app, db, admin_required
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
-from app.models import User, Post, Category, Listing, ListingImage, Payment, UserLocations
+from app.forms import *
+from app.models import *
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 
@@ -387,8 +386,9 @@ def payment():
         payment = Payment(owner=owner, card_number=card_number, cvv=cvv)
         db.session.add(payment)
         db.session.commit()
-        return 'Payment successful!'
-    return render_template('payment.html')
+        flash('Payment successful!')
+        return redirect(url_for('index'))
+    return render_template('Payments.html.j2', title=_('Payment'))
 
 @app.route('/User_Location', methods=['GET', 'POST'])
 def User_Location():
@@ -400,8 +400,9 @@ def User_Location():
             district=district, address=address, postal_code=postal_code)
         db.session.add(User_Location)
         db.session.commit()
-        return 'ok!'
-    return render_template('UserLocation.html')
+        flash('Your Address have been saved.')
+        return redirect(url_for('index'))
+    return render_template('UserLocation.html.j2', title=_('Location'))
 
 
 @app.route('/User_Discount', methods=['GET', 'POST'])
@@ -411,6 +412,7 @@ def User_Discount():
         User_Discount = UserDiscounts(exchange_code=exchange_code)
         db.session.add(User_Discount)
         db.session.commit()
-        return 'exchange successful!'
-    return render_template('discounts.html')
+        flash('Your discount code have been applied.')
+        return redirect(url_for('index'))
+    return render_template('discounts.html.j2', title=_('Discounts'))
 

@@ -168,7 +168,7 @@ class Report(db.Model):
         
 #(jonas)
 class Payment(db.Model):
-    __tablename__ = 'payments'
+    __tablename__ = 'payment'
     id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.String(50), nullable=False)
     card_number = db.Column(db.String(50), nullable=False)
@@ -179,7 +179,7 @@ class Payment(db.Model):
         return f'<Payment {self.id}>'
 
 class UserLocations(db.Model):
-    __tablename__ = 'User_Location'
+    __tablename__ = 'user_location'
     id = db.Column(db.Integer, primary_key=True)
     district = db.Column(db.String(50), nullable=False)
     address = db.Column(db.String(50), nullable=False)
@@ -190,7 +190,7 @@ class UserLocations(db.Model):
         return f'<UserLocations {self.id}>'
 
 class UserDiscounts(db.Model):
-    __tablename__ = 'User_Discount'
+    __tablename__ = 'user_discount'
     id = db.Column(db.Integer, primary_key=True)
     exchange_code = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())

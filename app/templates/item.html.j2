@@ -28,6 +28,7 @@
               <p class="card-text">{{ listing.description }}</p>
               <p class="card-text font-weight-bold">${{ listing.price }}</p>
               <a href="../product_details/{{ listing.id }}" class="btn btn-primary">View Details</a>
+              <a href="{{ url_for('payment') }}" class="btn btn-primary">Buy</a>
             </div>
           </div>
         </div>
