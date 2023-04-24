@@ -8,7 +8,7 @@ from google.cloud import storage
 from app import app, db, admin_required
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
-from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocations
+from app.models import User, Post, Category, Listing, ListingImage, Payment, UserLocations
 
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
@@ -47,27 +47,6 @@ def index():
 
     # Create a dictionary to hold the URLs for each image path
     image_urls = {}
-
-    ads = Ad.query.all()
-    listings_images = ListingImage.query.all()
-    location = Location.query.all()
-    category = Category.query.all()
-    # storage_client = storage.Client.from_service_account_json(app.config['CRED_JSON'])
-    # bucket_name = app.config['BUCKET_NAME']
-    # image_urls = {}
-
-    # for image in listings_images:
-    #     image_blob = storage_client.bucket(bucket_name).get_blob(image.filename)
-    #     if image_blob is not None:
-    #         image_urls[image.image_name] = image_blob.generate_signed_url(
-    #             version='v4',
-    #             expiration=datetime.timedelta(hours=1),
-    #             method='GET'
-    #         )
-
-    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
-
-
     # Loop through the image paths and get the URLs for each one
     for path in set(sum(images.values(), [])):
         # Get the blob for the current path
@@ -330,33 +309,8 @@ def administrator():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-
     form = AdminForm()
     return render_template('administrator.html.j2', title=_('administrator'), form=form)
-
-# @app.route('/administrator/dashboard/<int:id>/edit', methods=['GET', 'POST'])
-# @admin_required
-# def edit_product(id):
-#     product = Product.query.get_or_404(id)
-#     form = ProductForm(obj=product)
-#     if form.validate_on_submit():
-#         product.name = form.name.data
-#         product.price = form.price.data
-#         db.session.add(product)
-#         db.session.commit()
-#         flash('The product has been updated.')
-#         return redirect(url_for('products'))
-#     return render_template('admin/edit_product.html', form=form, product=product)
-
-# # Route for deleting a product
-# @app.route('/administrator/dashboard/<int:id>/delete', methods=['POST'])
-# @admin_required
-# def delete_product(id):
-#     product = Product.query.get_or_404(id)
-#     db.session.delete(product)
-#     db.session.commit()
-#     flash('The product has been deleted.')
-#     return redirect(url_for('products'))
 
 @app.route('/product_details/<int:id>')
 def product_details(id):
@@ -425,10 +379,6 @@ def create_notification():
         return redirect(url_for('notifications'))
     return render_template('create_notification.html.j2')
 
-        return redirect(url_for('index'))
-    return render_template('admin.html.j2', title=_('Admin'), form=form)
-
-
 @app.route('/review', methods=['GET', 'POST'])
 def review():
     form = ReviewForm()
@@ -445,13 +395,6 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
-
-@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
-def product_details(id):
-    listing = Listing.query.get(id)
-    return render_template('product_details.html.j2', listing=listing, id=id)
-
-
 
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
