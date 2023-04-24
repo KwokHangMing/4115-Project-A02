@@ -1,0 +1,43 @@
+{% extends "base.html.j2" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Discounts</title>
+<head>
+	<h2>Use Discounts</h2>
+	<title>Generate Password</title>
+	<script>
+		document.addEventListener("DOMContentLoaded", function(event) { 
+			var button = document.getElementById("generateButton");
+			button.addEventListener("click", function() {
+				var length = 12;
+				var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+				var password = '';
+				for (var i = 0; i < length; i++) {
+					password += characters.charAt(Math.floor(Math.random() * characters.length));
+				}
+				document.getElementById('password').value = password;
+			});
+		});
+	</script>
+</head>
+<body>
+	<button id="generateButton">Generate Password</button>
+	<br><br>
+	<label for="password">Password:</label>
+	<input type="text" id="password" readonly>
+</body>
+</html>
+	<form method="POST" action="/User_Discount">
+
+		<label for="exchange_code">exchange_code:</label>
+		<input type="text" id="exchange_code" name="exchange_code" required><br>>
+		<input type="submit" value="Get Discount">
+	</form>
+</body>
+</html>
+
+{% endblock %}

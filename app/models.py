@@ -96,8 +96,6 @@ class Post(db.Model):
         return f'<Post {self.body}>'
 
 # our code here(Leo)
-
-
 class Category(db.Model):
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
@@ -128,27 +126,7 @@ class ListingImage(db.Model):
     image = db.relationship('Listing', uselist=False, back_populates='listingimage')
     path = db.Column(db.String(100))
 
-
-class Ad(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
-    image_url = db.Column(db.String(200))
-
-
 # Alex coding here
-class Tag(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-
-
-listing_tags = db.Table('listing_tags',
-                        db.Column('listing_id', db.Integer, db.ForeignKey(
-                            'listing.id'), primary_key=True),
-                        db.Column('tag_id', db.Integer, db.ForeignKey(
-                            'tag.id'), primary_key=True)
-                        )
-
-
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
@@ -187,7 +165,7 @@ class Report(db.Model):
     message = db.Column(db.String(200), nullable=False)
     def __repr__(self):
         return f"Report('{self.message}')"
-
+        
 #(jonas)
 class Payment(db.Model):
     __tablename__ = 'payments'
@@ -199,7 +177,6 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment {self.id}>'
-    
 
 class UserLocations(db.Model):
     __tablename__ = 'User_Location'
@@ -211,4 +188,13 @@ class UserLocations(db.Model):
 
     def __repr__(self):
         return f'<UserLocations {self.id}>'
+
+class UserDiscounts(db.Model):
+    __tablename__ = 'User_Discount'
+    id = db.Column(db.Integer, primary_key=True)
+    exchange_code = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<UserDiscounts {self.id}>'
 

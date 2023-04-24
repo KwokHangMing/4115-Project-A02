@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import abort, render_template, flash, redirect, url_for, request, g
+from flask import abort, jsonify, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
@@ -9,7 +9,6 @@ from app import app, db, admin_required
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
 from app.models import User, Post, Category, Listing, ListingImage, Payment, UserLocations
-
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 
@@ -27,39 +26,24 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     listings = Listing.query.all()
-
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
     listings = Listing.query.order_by(Listing.created_at.desc()).all()
-
-    # Create a dictionary to hold the image paths for each listing
     images = {}
-
-    # Loop through the listings and get the image paths for each one
     for listing in listings:
-        # Query the database for the image paths for the current listing
         listing_images = ListingImage.query.filter_by(
             listing_id=listing.id).all()
-
-        # Extract the image paths and add them to the images dictionary
         images[listing.id] = [image.path for image in listing_images]
-
-    # Create a dictionary to hold the URLs for each image path
     image_urls = {}
-    # Loop through the image paths and get the URLs for each one
     for path in set(sum(images.values(), [])):
-        # Get the blob for the current path
         blob = bucket.blob(path)
-
-        # Get the URL for the blob
         url = blob.public_url
-
-        # Add the URL to the image_urls dictionary
         image_urls[path] = url
     print(image_urls)
     return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, images=images, image_urls=image_urls)
 #rewrite by leo
+
 
 @app.route('/explore')
 @login_required
@@ -241,7 +225,6 @@ def cars():
 def property():
     return render_template('property.html.j2', title=_('Properity'))
 
-
 @app.route('/all_categories')
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
@@ -253,6 +236,11 @@ def Payments():
 @app.route('/UserLocation')
 def UserLocation():
     return render_template('UserLocation.html.j2', title=_('UserLocation'))
+
+@app.route('/Discounts')
+def Discounts():
+    return render_template('Discounts.html.j2', title=_('Discounts'))
+
 
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
@@ -303,12 +291,6 @@ def sell():
 @app.route('/administrator')
 @admin_required
 def administrator():
-
-# This is useless.
-
-
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
     form = AdminForm()
     return render_template('administrator.html.j2', title=_('administrator'), form=form)
 
@@ -414,9 +396,21 @@ def User_Location():
         district = request.form['district']
         address = request.form['address']
         postal_code = request.form['postal_code']
-        User_Location = UserLocations(district=district, address=address, postal_code=postal_code)
+        User_Location = UserLocations(
+            district=district, address=address, postal_code=postal_code)
         db.session.add(User_Location)
         db.session.commit()
         return 'ok!'
     return render_template('UserLocation.html')
+
+
+@app.route('/User_Discount', methods=['GET', 'POST'])
+def User_Discount():
+    if request.method == 'POST':
+        exchange_code = request.form['exchange_code']
+        User_Discount = UserDiscounts(exchange_code=exchange_code)
+        db.session.add(User_Discount)
+        db.session.commit()
+        return 'exchange successful!'
+    return render_template('discounts.html')
 
