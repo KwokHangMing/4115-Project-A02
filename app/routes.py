@@ -360,10 +360,6 @@ def create_notification():
         return redirect(url_for('notifications'))
     return render_template('create_notification.html.j2')
 
-        return redirect(url_for('index'))
-    return render_template('admin.html.j2', title=_('Admin'), form=form)
-
-
 @app.route('/review', methods=['GET', 'POST'])
 def review():
     form = ReviewForm()
@@ -385,8 +381,6 @@ def review():
 def product_details(id):
     listing = Listing.query.get(id)
     return render_template('product_details.html.j2', listing=listing, id=id)
-
-
 # jonas------
 
 @app.route('/payment', methods=['GET', 'POST'])
