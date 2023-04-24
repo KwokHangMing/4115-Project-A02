@@ -199,7 +199,6 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment {self.id}>'
-    
 
 class UserLocations(db.Model):
     __tablename__ = 'User_Location'
@@ -211,4 +210,13 @@ class UserLocations(db.Model):
 
     def __repr__(self):
         return f'<UserLocations {self.id}>'
+#
+class UserDiscounts(db.Model):
+    __tablename__ = 'User_Discount'
+    id = db.Column(db.Integer, primary_key=True)
+    exchange_code = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<UserDiscounts {self.id}>'
 

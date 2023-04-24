@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import abort, render_template, flash, redirect, url_for, request, g
+from flask import abort, jsonify, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
@@ -8,8 +8,12 @@ from google.cloud import storage
 from app import app, db, admin_required
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
+<<<<<<< HEAD
 from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocations
 
+=======
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocations, UserDiscounts
+>>>>>>> 8bb17c2 (commit Jonas 2.0)
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 
@@ -275,6 +279,10 @@ def Payments():
 def UserLocation():
     return render_template('UserLocation.html.j2', title=_('UserLocation'))
 
+@app.route('/Discounts')
+def Discounts():
+    return render_template('Discounts.html.j2', title=_('Discounts'))
+
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
 def sell():
@@ -452,7 +460,11 @@ def product_details(id):
     return render_template('product_details.html.j2', listing=listing, id=id)
 
 
+<<<<<<< HEAD
 
+=======
+# jonas------
+>>>>>>> 8bb17c2 (commit Jonas 2.0)
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
     if request.method == 'POST':
@@ -471,9 +483,22 @@ def User_Location():
         district = request.form['district']
         address = request.form['address']
         postal_code = request.form['postal_code']
-        User_Location = UserLocations(district=district, address=address, postal_code=postal_code)
+        User_Location = UserLocations(
+            district=district, address=address, postal_code=postal_code)
         db.session.add(User_Location)
         db.session.commit()
         return 'ok!'
     return render_template('UserLocation.html')
 
+<<<<<<< HEAD
+=======
+@app.route('/User_Discount', methods=['GET', 'POST'])
+def User_Discount():
+    if request.method == 'POST':
+        exchange_code = request.form['exchange_code']
+        User_Discount = UserDiscounts(exchange_code=exchange_code)
+        db.session.add(User_Discount)
+        db.session.commit()
+        return 'exchange successful!'
+    return render_template('discounts.html')
+>>>>>>> 8bb17c2 (commit Jonas 2.0)
