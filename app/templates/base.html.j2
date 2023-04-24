@@ -46,7 +46,7 @@
                            role="button"
                            data-toggle="dropdown"
                            aria-haspopup="true"
-                           aria-expanded="false">{{ _('Electronics') }} </a>
+                           aria-expanded="false">{{ _('Electronics') }}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="nonexistent-page.html">Computers & Tech</a>
                             <a class="dropdown-item" href="nonexistent-page.html">Mobile Phones & Gadgets</a>
@@ -65,110 +65,150 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="nonexistent-page.html">Women's Fashion</a>
                             <a class="dropdown-item" href="nonexistent-page.html">Men's Fashion</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               aria-current="page"
-                               href="{{ url_for('luxury') }}">{{ _('Luxury') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               aria-current="page"
-                               href="{{ url_for('services') }}">{{ _('Services') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               aria-current="page"
-                               href="{{ url_for('cars') }}">{{ _('Cars') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               aria-current="page"
-                               href="{{ url_for('property') }}">{{ _('Property') }}</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle"
-                               href="#"
-                               role="button"
-                               data-bs-toggle="dropdown"
-                               aria-expanded="false">{{ _('All Categories') }}</a>
-                        </li>
-                    </ul>
-                </div>
-                <ul class="nav justify-content-end fs-4">
-                    {% if current_user.is_anonymous %}
-                        <li class="nav-item">
-                            <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle"
-                               type="button"
-                               data-toggle="dropdown"
-                               href="#"
-                               role="button"
-                               aria-haspopup="true"
-                               aria-expanded="false">{{ _('Hi, %(username)s!', username=current_user.username) }}</a>
-                            <ul class="dropdown-menu fs-4">
-                                <li>
-                                    <a class="dropdown-item"
-                                       href="{{ url_for('user', username=current_user.username) }}">Profile</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('edit_profile') }}">Settings</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('notifications') }}">Notifications</a> <!-- Alex coding here -->
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('report') }}">Report User</a> <!-- Alex coding here -->
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('review') }}">Review User</a> <!-- Alex coding here -->
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('Discounts') }}">discount</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('UserLocation') }}">Location</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"  href="{{ url_for('logout') }}">Logout</a>
-                                </li>
-                            </ul>
-                        </li>
-                    {% endif %}
-                    <ul class="navbar-default">
-                        <a class="btn btn-danger btn-lg fs-4"
-                           href="{{ url_for('sell') }}"
-                           role="button">Sell</a>
-                        {% if current_user.is_authenticated and current_user.is_admin %}
-                            <a href="{{ url_for('administrator') }}">Admin Panel</a>
-                        {% endif %}
-                    </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           aria-current="page"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">{{ _('Luxury') }}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="nonexistent-page.html">Bags & Wallets</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Watches</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Accessories</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           aria-current="page"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">{{ _('Services') }}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="nonexistent-page.html">Home Services</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Buesiness Services</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           aria-current="page"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">{{ _('Luxury') }}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="nonexistent-page.html">Cars for Sale</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Vehcile Rentals</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Motorbikes</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           aria-current="page"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">{{ _('Property') }}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="nonexistent-page.html">For Sale</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Rentals</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Overseas</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link dropdown-toggle"
+                           href="nonexistent-page.html"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">{{ _('All Categories') }}</a>
+                    </li>
                 </ul>
-            </nav>
-        {% endblock %}
-        {% block content %}
-            <div class="container">
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-info" role="alert">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-                {# application content needs to be provided in the app_content block #}
-                {% block app_content %}{% endblock %}
             </div>
-        {% endblock %}
-        {% block scripts %}
-            {{ super() }}
-            {{ moment.include_moment() }}
-            {{ moment.lang(g.locale) }}
-        {% endblock %}
+            <ul class="nav justify-content-end fs-4">
+                {% if current_user.is_anonymous %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           type="button"
+                           data-toggle="dropdown"
+                           href="#"
+                           role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">{{ _('Hi, %(username)s!', username=current_user.username) }}</a>
+                        <ul class="dropdown-menu fs-4">
+                            <li>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user', username=current_user.username) }}">Profile</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('edit_profile') }}">Settings</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('notifications') }}">Notifications</a> <!-- Alex coding here -->
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('report') }}">Report User</a> <!-- Alex coding here -->
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('review') }}">Review User</a> <!-- Alex coding here -->
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('Discounts') }}">discount</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('UserLocation') }}">Location</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"  href="{{ url_for('logout') }}">Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+                <ul class="navbar-default">
+                    <a class="btn btn-danger btn-lg fs-4"
+                       href="{{ url_for('sell') }}"
+                       role="button">Sell</a>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                        <a href="{{ url_for('administrator') }}">Admin Panel</a>
+                    {% endif %}
+                </ul>
+            </ul>
+        </nav>
+    {% endblock %}
+    {% block content %}
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-info" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {# application content needs to be provided in the app_content block #}
+            {% block app_content %}{% endblock %}
+        </div>
+    {% endblock %}
+    {% block scripts %}
+        {{ super() }}
+        {{ moment.include_moment() }}
+        {{ moment.lang(g.locale) }}
+    {% endblock %}
