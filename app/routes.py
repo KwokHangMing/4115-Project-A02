@@ -340,7 +340,6 @@ def product_details(id):
         url = blob.public_url
         # Add the URL to the image_urls dictionary
         image_urls[image.path] = url
-
     return render_template('product_details.html.j2', 
                            title=listing.title, 
                            listing=listing, 
@@ -402,3 +401,4 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
+
