@@ -323,11 +323,18 @@ def delete_product(id):
 def product_details(id):
     # Query the database for the listing with the specified ID
     listing = Listing.query.get(id)
+<<<<<<< HEAD
     category = listing.category
+=======
+
+    listing_images = ListingImage.query.all()
+    category =  listing.category
+>>>>>>> 25-April-2023
     user = listing.user
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+<<<<<<< HEAD
     # Query the database for the image paths for the current listing
     listing_images = ListingImage.query.filter_by(listing_id=id).all()
     # Create a dictionary to hold the URLs for each image path
@@ -340,6 +347,16 @@ def product_details(id):
         url = blob.public_url
         # Add the URL to the image_urls dictionary
         image_urls[image.path] = url
+=======
+    blobs = list(bucket.list_blobs())
+    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
+    latest_image_url = latest_blob.public_url
+    return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url, 
+                           listing_images=listing_images, category=category,
+                           user=user)
+
+    return render_template('product_details.html.j2', listing=listing, id=id)
+>>>>>>> 25-April-2023
 
     return render_template('product_details.html.j2', 
                            title=listing.title, 
@@ -402,4 +419,7 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 25-April-2023
