@@ -21,3 +21,4 @@ class Config(object):
     BUCKET_NAME = 'cwad_bucket_a02'
     PROJECT_ID = 'cloud-web-application'
     CRED_JSON = 'credentials.json'
+

@@ -49,10 +49,17 @@
                            aria-haspopup="true"
                            aria-expanded="false">{{ _('Electronics') }} </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
                             <a class="dropdown-item" href="#">Computers & Tech</a>
                             <a class="dropdown-item" href="#">Mobile Phones & Gadgets</a>
                             <a class="dropdown-item" href="#">Video Gaming</a>
                         </div>
+
+                            <a class="dropdown-item" href="nonexistent-page.html">Computers & Tech</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Mobile Phones & Gadgets</a>
+                            <a class="dropdown-item" href="nonexistent-page.html">Video Gaming</a>
+                          
+
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle"
@@ -64,8 +71,8 @@
                                aria-haspopup="true"
                                aria-expanded="false">{{ _('Fashion') }} </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#">Women's Fashion</a>
-                                <a class="dropdown-item" href="#">Men's Fashion</a>
+                                <a class="dropdown-item" href="nonexistent-page.html">Women's Fashion</a>
+                                <a class="dropdown-item" href="nonexistent-page.html">Men's Fashion</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link active"
@@ -105,6 +112,9 @@
                                 <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
                             </li>
                         {% else %}
+                        
+                        
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle"
                                    type="button"
@@ -132,6 +142,9 @@
                                     </li>
 
                                     <li>
+                                        <a class="dropdown-item"  href="{{ url_for('UserLocation') }}">Location</a>
+                                    </li>
+                                    <li>
                                         <a class="dropdown-item"  href="{{ url_for('logout') }}">Logout</a>
                                     </li>
                                 </ul>
@@ -146,6 +159,7 @@
                         {% endif %}
                         </ul>
                     </ul>
+
                 </nav>
             {% endblock %}
             {% block content %}
@@ -164,3 +178,25 @@
                 {{ moment.include_moment() }}
                 {{ moment.lang(g.locale) }}
             {% endblock %}
+
+            </nav>
+        {% endblock %}
+        {% block content %}
+            <div class="container">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {# application content needs to be provided in the app_content block #}
+                {% block app_content %}{% endblock %}
+            </div>
+        {% endblock %}
+        {% block scripts %}
+            {{ super() }}
+            {{ moment.include_moment() }}
+            {{ moment.lang(g.locale) }}
+
+            
+        {% endblock %}
+

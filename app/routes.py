@@ -4,9 +4,12 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import admin_required, app, db
-from app.forms import *
-from app.models import *
+
+from app import app, db, admin_required
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocations
+
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 
@@ -24,6 +27,7 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     listings = Listing.query.all()
+
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
@@ -43,6 +47,26 @@ def index():
 
     # Create a dictionary to hold the URLs for each image path
     image_urls = {}
+
+    ads = Ad.query.all()
+    listings_images = ListingImage.query.all()
+    location = Location.query.all()
+    category = Category.query.all()
+    # storage_client = storage.Client.from_service_account_json(app.config['CRED_JSON'])
+    # bucket_name = app.config['BUCKET_NAME']
+    # image_urls = {}
+
+    # for image in listings_images:
+    #     image_blob = storage_client.bucket(bucket_name).get_blob(image.filename)
+    #     if image_blob is not None:
+    #         image_urls[image.image_name] = image_blob.generate_signed_url(
+    #             version='v4',
+    #             expiration=datetime.timedelta(hours=1),
+    #             method='GET'
+    #         )
+
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
+
 
     # Loop through the image paths and get the URLs for each one
     for path in set(sum(images.values(), [])):
@@ -243,6 +267,13 @@ def property():
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
 
+@app.route('/Payments')
+def Payments():
+    return render_template('Payments.html.j2', title=_('Payments'))
+
+@app.route('/UserLocation')
+def UserLocation():
+    return render_template('UserLocation.html.j2', title=_('UserLocation'))
 
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
@@ -289,9 +320,17 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
+
 @app.route('/administrator')
 @admin_required
 def administrator():
+
+# This is useless.
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+
     form = AdminForm()
     return render_template('administrator.html.j2', title=_('administrator'), form=form)
 
@@ -382,8 +421,13 @@ def create_notification():
         notification = Notification(content=content, user_id=user_id)
         db.session.add(notification)
         db.session.commit()
+
         return redirect(url_for('notifications'))
     return render_template('create_notification.html.j2')
+
+        return redirect(url_for('index'))
+    return render_template('admin.html.j2', title=_('Admin'), form=form)
+
 
 @app.route('/review', methods=['GET', 'POST'])
 def review():
@@ -401,4 +445,35 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
+
+@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
+def product_details(id):
+    listing = Listing.query.get(id)
+    return render_template('product_details.html.j2', listing=listing, id=id)
+
+
+
+@app.route('/payment', methods=['GET', 'POST'])
+def payment():
+    if request.method == 'POST':
+        owner = request.form['owner']
+        card_number = request.form['card_number']
+        cvv = request.form['cvv']
+        payment = Payment(owner=owner, card_number=card_number, cvv=cvv)
+        db.session.add(payment)
+        db.session.commit()
+        return 'Payment successful!'
+    return render_template('payment.html')
+
+@app.route('/User_Location', methods=['GET', 'POST'])
+def User_Location():
+    if request.method == 'POST':
+        district = request.form['district']
+        address = request.form['address']
+        postal_code = request.form['postal_code']
+        User_Location = UserLocations(district=district, address=address, postal_code=postal_code)
+        db.session.add(User_Location)
+        db.session.commit()
+        return 'ok!'
+    return render_template('UserLocation.html')
 

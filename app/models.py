@@ -134,6 +134,7 @@ class Ad(db.Model):
     title = db.Column(db.String(100))
     image_url = db.Column(db.String(200))
 
+
 # Alex coding here
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -186,3 +187,28 @@ class Report(db.Model):
     message = db.Column(db.String(200), nullable=False)
     def __repr__(self):
         return f"Report('{self.message}')"
+
+#(jonas)
+class Payment(db.Model):
+    __tablename__ = 'payments'
+    id = db.Column(db.Integer, primary_key=True)
+    owner = db.Column(db.String(50), nullable=False)
+    card_number = db.Column(db.String(50), nullable=False)
+    cvv = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<Payment {self.id}>'
+    
+
+class UserLocations(db.Model):
+    __tablename__ = 'User_Location'
+    id = db.Column(db.Integer, primary_key=True)
+    district = db.Column(db.String(50), nullable=False)
+    address = db.Column(db.String(50), nullable=False)
+    postal_code = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<UserLocations {self.id}>'
+
