@@ -6,8 +6,9 @@ from flask_babel import _, get_locale
 from google.cloud import storage
 
 from app import app, db, admin_required
-from app.forms import *
-from app.models import *
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
+    ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
+from app.models import User, Post, Category, Listing, ListingImage, Payment, UserLocations
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 
@@ -360,10 +361,6 @@ def create_notification():
         return redirect(url_for('notifications'))
     return render_template('create_notification.html.j2')
 
-        return redirect(url_for('index'))
-    return render_template('admin.html.j2', title=_('Admin'), form=form)
-
-
 @app.route('/review', methods=['GET', 'POST'])
 def review():
     form = ReviewForm()
@@ -380,14 +377,6 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
-
-@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
-def product_details(id):
-    listing = Listing.query.get(id)
-    return render_template('product_details.html.j2', listing=listing, id=id)
-
-
-# jonas------
 
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
