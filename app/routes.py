@@ -4,13 +4,15 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import app, db
+
+from app import app, db, admin_required
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
 from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocations
+
 from app.email import send_password_reset_email
-import os
 from werkzeug.utils import secure_filename
+
 
 
 @app.before_request
@@ -25,6 +27,27 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     listings = Listing.query.all()
+
+    storage_client = storage.Client.from_service_account_json(
+        app.config['CRED_JSON'])
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    listings = Listing.query.order_by(Listing.created_at.desc()).all()
+
+    # Create a dictionary to hold the image paths for each listing
+    images = {}
+
+    # Loop through the listings and get the image paths for each one
+    for listing in listings:
+        # Query the database for the image paths for the current listing
+        listing_images = ListingImage.query.filter_by(
+            listing_id=listing.id).all()
+
+        # Extract the image paths and add them to the images dictionary
+        images[listing.id] = [image.path for image in listing_images]
+
+    # Create a dictionary to hold the URLs for each image path
+    image_urls = {}
+
     ads = Ad.query.all()
     listings_images = ListingImage.query.all()
     location = Location.query.all()
@@ -44,6 +67,20 @@ def index():
 
     return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, listings_images=listings_images, ads=ads, location=location, category=category)
 
+
+    # Loop through the image paths and get the URLs for each one
+    for path in set(sum(images.values(), [])):
+        # Get the blob for the current path
+        blob = bucket.blob(path)
+
+        # Get the URL for the blob
+        url = blob.public_url
+
+        # Add the URL to the image_urls dictionary
+        image_urls[path] = url
+    print(image_urls)
+    return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, images=images, image_urls=image_urls)
+#rewrite by leo
 
 @app.route('/explore')
 @login_required
@@ -194,9 +231,8 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-# our code here
 
-
+#Leo code here
 @app.route('/electronics')
 def electronics():
     return render_template('electronics.html.j2', title=_('Electronics'))
@@ -244,6 +280,8 @@ def UserLocation():
 def sell():
     form = SellForm()
     if form.validate_on_submit():
+        # Get the current user
+        user = current_user
         image_file = form.image.data
         filename = secure_filename(image_file.filename)
         # Create a GCS client
@@ -263,41 +301,150 @@ def sell():
         listing = Listing(title=form.title.data,
                           description=form.description.data,
                           price=form.price.data,
-                          status='available',  # set the status to 'available'
-                          user=current_user,
-                          category=category)
+                          status='available',  # set the status to 'available',
+                          category=category,
+                          location=form.location.data,
+                          user_id=user.id)  # Set the user_id attribute to the current user's id
         # Add the objects to the database
-        location_name = Location(name=form.location.name)
         db.session.add(category)
-        db.session.add(image)
         db.session.add(listing)
-        db.session.add(location_name)
+        db.session.commit()
+        # Refresh the listing object to make sure that it is fully committed to the database
+        db.session.refresh(listing)
+        # Set the listing_id attribute of the ListingImage object
+        image.listing_id = listing.id
+        print(f"listing_id: {image.listing_id}")
+        db.session.add(image)
         db.session.commit()
         flash(_('Your item has been saved.'))
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
+
+
+@app.route('/administrator')
+@admin_required
+def administrator():
 
 # This is useless.
 
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
+
     form = AdminForm()
-    if form.validate_on_submit():
-        title = form.title.data
-        image_url = form.image_url.data
-        ad = Ad(title=title, image_url=image_url)
-        db.session.add(ad)
+    return render_template('administrator.html.j2', title=_('administrator'), form=form)
+
+# @app.route('/administrator/dashboard/<int:id>/edit', methods=['GET', 'POST'])
+# @admin_required
+# def edit_product(id):
+#     product = Product.query.get_or_404(id)
+#     form = ProductForm(obj=product)
+#     if form.validate_on_submit():
+#         product.name = form.name.data
+#         product.price = form.price.data
+#         db.session.add(product)
+#         db.session.commit()
+#         flash('The product has been updated.')
+#         return redirect(url_for('products'))
+#     return render_template('admin/edit_product.html', form=form, product=product)
+
+# # Route for deleting a product
+# @app.route('/administrator/dashboard/<int:id>/delete', methods=['POST'])
+# @admin_required
+# def delete_product(id):
+#     product = Product.query.get_or_404(id)
+#     db.session.delete(product)
+#     db.session.commit()
+#     flash('The product has been deleted.')
+#     return redirect(url_for('products'))
+
+@app.route('/product_details/<int:id>')
+def product_details(id):
+    # Query the database for the listing with the specified ID
+    listing = Listing.query.get(id)
+    category = listing.category
+    user = listing.user
+    storage_client = storage.Client.from_service_account_json(
+        app.config['CRED_JSON'])
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    # Query the database for the image paths for the current listing
+    listing_images = ListingImage.query.filter_by(listing_id=id).all()
+    # Create a dictionary to hold the URLs for each image path
+    image_urls = {}
+    # Loop through the image paths and get the URLs for each one
+    for image in listing_images:
+        # Get the blob for the current path
+        blob = bucket.blob(image.path)
+        # Get the URL for the blob
+        url = blob.public_url
+        # Add the URL to the image_urls dictionary
+        image_urls[image.path] = url
+    return render_template('product_details.html.j2', 
+                           title=listing.title, 
+                           listing=listing, 
+                           category=category,
+                           user=user,
+                           listing_images=listing_images,
+                           image_urls=image_urls)
+#done by leo
+# Alex coding here
+@app.route('/report', methods=['GET', 'POST'])
+def report():
+    if request.method == 'POST':
+        username = request.form['username']
+        user = User.query.filter_by(username=username).first()
+        if user and user != current_user:  # Added check for current user
+            message = request.form['message']
+            report = Report(user_id=user.id, message=message)
+            db.session.add(report)
+            db.session.commit()
+            flash('Report successfully submitted!', 'success')
+        elif user == current_user:  # Display an error message when a user tries to report themselves
+            flash('You cannot report yourself!', 'danger')
+        else:
+            flash('User does not exist!', 'danger')
+        return redirect(url_for('report'))
+    return render_template('report.html.j2')
+
+
+@app.route('/notifications')
+def notifications():
+    notifications = Notification.query.all()
+    return render_template('notifications.html.j2', notifications=notifications)
+
+
+@app.route('/notifications/create', methods=['GET', 'POST'])
+def create_notification():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        user_id = 1  # replace with the actual user id
+        notification = Notification(content=content, user_id=user_id)
+        db.session.add(notification)
         db.session.commit()
+
+        return redirect(url_for('notifications'))
+    return render_template('create_notification.html.j2')
+
         return redirect(url_for('index'))
     return render_template('admin.html.j2', title=_('Admin'), form=form)
-# -----------------------------------------------------------------------
 
 
-@app.route('/item', methods=['GET', 'POST'])
-def item():
-    return render_template('item.html.j2')
-
+@app.route('/review', methods=['GET', 'POST'])
+def review():
+    form = ReviewForm()
+    if form.validate_on_submit():
+        seller_id = form.seller.data
+        content = form.content.data
+        rating = form.rating.data
+        if seller_id == str(current_user.id):
+            flash('You cannot rate yourself!', 'danger')
+        else:
+            review = Review(seller_id=seller_id, buyer_id=current_user.id, content=content, rating=rating)
+            db.session.add(review)
+            db.session.commit()
+            flash('Your review has been submitted!', 'success')
+            return redirect(url_for('review'))
+    return render_template('review.html.j2', form=form)
 
 @app.route('/product_details/<int:id>', methods=['GET', 'POST'])
 def product_details(id):
@@ -305,7 +452,7 @@ def product_details(id):
     return render_template('product_details.html.j2', listing=listing, id=id)
 
 
-# ------
+
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
     if request.method == 'POST':
@@ -317,7 +464,7 @@ def payment():
         db.session.commit()
         return 'Payment successful!'
     return render_template('payment.html')
-#-----
+
 @app.route('/User_Location', methods=['GET', 'POST'])
 def User_Location():
     if request.method == 'POST':
@@ -329,3 +476,4 @@ def User_Location():
         db.session.commit()
         return 'ok!'
     return render_template('UserLocation.html')
+
