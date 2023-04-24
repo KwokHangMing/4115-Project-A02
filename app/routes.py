@@ -1,10 +1,11 @@
 from datetime import datetime
-from flask import abort, render_template, flash, redirect, url_for, request, g
+from flask import abort, jsonify, render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from google.cloud import storage
-from app import admin_required, app, db
+
+from app import app, db, admin_required
 from app.forms import *
 from app.models import *
 from app.email import send_password_reset_email
@@ -28,35 +29,20 @@ def index():
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
     listings = Listing.query.order_by(Listing.created_at.desc()).all()
-
-    # Create a dictionary to hold the image paths for each listing
     images = {}
-
-    # Loop through the listings and get the image paths for each one
     for listing in listings:
-        # Query the database for the image paths for the current listing
         listing_images = ListingImage.query.filter_by(
             listing_id=listing.id).all()
-
-        # Extract the image paths and add them to the images dictionary
         images[listing.id] = [image.path for image in listing_images]
-
-    # Create a dictionary to hold the URLs for each image path
     image_urls = {}
-
-    # Loop through the image paths and get the URLs for each one
     for path in set(sum(images.values(), [])):
-        # Get the blob for the current path
         blob = bucket.blob(path)
-
-        # Get the URL for the blob
         url = blob.public_url
-
-        # Add the URL to the image_urls dictionary
         image_urls[path] = url
     print(image_urls)
     return render_template('index.html.j2', title=_('Carousell Hong Kong | Buy & Sell Cars, Property, Goods & Services'), listings=listings, images=images, image_urls=image_urls)
 #rewrite by leo
+
 
 @app.route('/explore')
 @login_required
@@ -238,7 +224,6 @@ def cars():
 def property():
     return render_template('property.html.j2', title=_('Properity'))
 
-
 @app.route('/all_categories')
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
@@ -250,6 +235,11 @@ def Payments():
 @app.route('/UserLocation')
 def UserLocation():
     return render_template('UserLocation.html.j2', title=_('UserLocation'))
+
+@app.route('/Discounts')
+def Discounts():
+    return render_template('Discounts.html.j2', title=_('Discounts'))
+
 
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
@@ -296,35 +286,12 @@ def sell():
         return redirect(url_for('index'))
     return render_template('sell.html.j2', title=_('Sell or Give Away Items, Offer Services, or Rent Out Your Apartment on Carousell'), form=form)
 
+
 @app.route('/administrator')
 @admin_required
 def administrator():
     form = AdminForm()
     return render_template('administrator.html.j2', title=_('administrator'), form=form)
-
-# @app.route('/administrator/dashboard/<int:id>/edit', methods=['GET', 'POST'])
-# @admin_required
-# def edit_product(id):
-#     product = Product.query.get_or_404(id)
-#     form = ProductForm(obj=product)
-#     if form.validate_on_submit():
-#         product.name = form.name.data
-#         product.price = form.price.data
-#         db.session.add(product)
-#         db.session.commit()
-#         flash('The product has been updated.')
-#         return redirect(url_for('products'))
-#     return render_template('admin/edit_product.html', form=form, product=product)
-
-# # Route for deleting a product
-# @app.route('/administrator/dashboard/<int:id>/delete', methods=['POST'])
-# @admin_required
-# def delete_product(id):
-#     product = Product.query.get_or_404(id)
-#     db.session.delete(product)
-#     db.session.commit()
-#     flash('The product has been deleted.')
-#     return redirect(url_for('products'))
 
 @app.route('/product_details/<int:id>')
 def product_details(id):
@@ -347,7 +314,6 @@ def product_details(id):
         url = blob.public_url
         # Add the URL to the image_urls dictionary
         image_urls[image.path] = url
-
     return render_template('product_details.html.j2', 
                            title=listing.title, 
                            listing=listing, 
@@ -390,8 +356,13 @@ def create_notification():
         notification = Notification(content=content, user_id=user_id)
         db.session.add(notification)
         db.session.commit()
+
         return redirect(url_for('notifications'))
     return render_template('create_notification.html.j2')
+
+        return redirect(url_for('index'))
+    return render_template('admin.html.j2', title=_('Admin'), form=form)
+
 
 @app.route('/review', methods=['GET', 'POST'])
 def review():
@@ -409,3 +380,48 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
+
+@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
+def product_details(id):
+    listing = Listing.query.get(id)
+    return render_template('product_details.html.j2', listing=listing, id=id)
+
+
+# jonas------
+
+@app.route('/payment', methods=['GET', 'POST'])
+def payment():
+    if request.method == 'POST':
+        owner = request.form['owner']
+        card_number = request.form['card_number']
+        cvv = request.form['cvv']
+        payment = Payment(owner=owner, card_number=card_number, cvv=cvv)
+        db.session.add(payment)
+        db.session.commit()
+        return 'Payment successful!'
+    return render_template('payment.html')
+
+@app.route('/User_Location', methods=['GET', 'POST'])
+def User_Location():
+    if request.method == 'POST':
+        district = request.form['district']
+        address = request.form['address']
+        postal_code = request.form['postal_code']
+        User_Location = UserLocations(
+            district=district, address=address, postal_code=postal_code)
+        db.session.add(User_Location)
+        db.session.commit()
+        return 'ok!'
+    return render_template('UserLocation.html')
+
+
+@app.route('/User_Discount', methods=['GET', 'POST'])
+def User_Discount():
+    if request.method == 'POST':
+        exchange_code = request.form['exchange_code']
+        User_Discount = UserDiscounts(exchange_code=exchange_code)
+        db.session.add(User_Discount)
+        db.session.commit()
+        return 'exchange successful!'
+    return render_template('discounts.html')
+
