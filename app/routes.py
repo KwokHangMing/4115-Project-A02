@@ -295,46 +295,39 @@ def administrator():
     form = AdminForm()
     return render_template('administrator.html.j2', title=_('administrator'), form=form)
 
-@app.route('/administrator/dashboard/<int:id>/edit', methods=['GET', 'POST'])
-@admin_required
-def edit_product(id):
-    product = Product.query.get_or_404(id)
-    form = ProductForm(obj=product)
-    if form.validate_on_submit():
-        product.name = form.name.data
-        product.price = form.price.data
-        db.session.add(product)
-        db.session.commit()
-        flash('The product has been updated.')
-        return redirect(url_for('products'))
-    return render_template('admin/edit_product.html', form=form, product=product)
+# @app.route('/administrator/dashboard/<int:id>/edit', methods=['GET', 'POST'])
+# @admin_required
+# def edit_product(id):
+#     product = Product.query.get_or_404(id)
+#     form = ProductForm(obj=product)
+#     if form.validate_on_submit():
+#         product.name = form.name.data
+#         product.price = form.price.data
+#         db.session.add(product)
+#         db.session.commit()
+#         flash('The product has been updated.')
+#         return redirect(url_for('products'))
+#     return render_template('admin/edit_product.html', form=form, product=product)
 
-# Route for deleting a product
-@app.route('/administrator/dashboard/<int:id>/delete', methods=['POST'])
-@admin_required
-def delete_product(id):
-    product = Product.query.get_or_404(id)
-    db.session.delete(product)
-    db.session.commit()
-    flash('The product has been deleted.')
-    return redirect(url_for('products'))
+# # Route for deleting a product
+# @app.route('/administrator/dashboard/<int:id>/delete', methods=['POST'])
+# @admin_required
+# def delete_product(id):
+#     product = Product.query.get_or_404(id)
+#     db.session.delete(product)
+#     db.session.commit()
+#     flash('The product has been deleted.')
+#     return redirect(url_for('products'))
 
 @app.route('/product_details/<int:id>')
 def product_details(id):
     # Query the database for the listing with the specified ID
     listing = Listing.query.get(id)
-<<<<<<< HEAD
     category = listing.category
-=======
-
-    listing_images = ListingImage.query.all()
-    category =  listing.category
->>>>>>> 25-April-2023
     user = listing.user
     storage_client = storage.Client.from_service_account_json(
         app.config['CRED_JSON'])
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-<<<<<<< HEAD
     # Query the database for the image paths for the current listing
     listing_images = ListingImage.query.filter_by(listing_id=id).all()
     # Create a dictionary to hold the URLs for each image path
@@ -347,17 +340,6 @@ def product_details(id):
         url = blob.public_url
         # Add the URL to the image_urls dictionary
         image_urls[image.path] = url
-=======
-    blobs = list(bucket.list_blobs())
-    latest_blob = sorted(blobs, key=lambda x: x.time_created, reverse=True)[0]
-    latest_image_url = latest_blob.public_url
-    return render_template('product_details.html.j2', listing=listing, id=id, image_url=latest_image_url, 
-                           listing_images=listing_images, category=category,
-                           user=user)
-
-    return render_template('product_details.html.j2', listing=listing, id=id)
->>>>>>> 25-April-2023
-
     return render_template('product_details.html.j2', 
                            title=listing.title, 
                            listing=listing, 
@@ -419,7 +401,4 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
-<<<<<<< HEAD
 
-=======
->>>>>>> 25-April-2023
