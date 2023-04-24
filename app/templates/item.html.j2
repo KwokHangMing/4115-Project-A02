@@ -30,9 +30,12 @@
             <p class="card-text">{{ listing.description }}</p>
             <p class="card-text font-weight-bold">${{ listing.price }}</p>
             <a href="../product_details/{{ listing.id }}" class="btn btn-primary">View Details</a>
+            <button><a href="{{ url_for('Payments') }}" target="_blank">buy</a></button>
           </div>
+          
         </div>
       </div>
+      <div class="item active">
     {% endfor %}
   </div>
 </div> #}

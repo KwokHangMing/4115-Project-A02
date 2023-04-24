@@ -243,6 +243,13 @@ def property():
 def all_categories():
     return render_template('all_categories.html.j2', title=_('All Categories'))
 
+@app.route('/Payments')
+def Payments():
+    return render_template('Payments.html.j2', title=_('Payments'))
+
+@app.route('/UserLocation')
+def UserLocation():
+    return render_template('UserLocation.html.j2', title=_('UserLocation'))
 
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
