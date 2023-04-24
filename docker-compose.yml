@@ -1,33 +1,22 @@
-version: "3"
-services:
-  web:
-    image: hmkwok/itp4115-assignment
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-    ports:
-      - 5000:5000
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      SECRET_KEY: my-secret-key
-      MAIL_SERVER: mailhog
-      MAIL_PORT: 1025
-    networks:
-      - webnet
+version: '3.8'
 
-  visualizer:
-    image: dockersamples/visualizer:stable
-    ports:
-      - 8081:8080
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        VARIANT: "3"
+        NODE_VERSION: "none"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    deploy:
-      placement:
-        constraints: [node.role == manager]
+      - ..:/workspace:cached
+    command: sleep infinity
     networks:
-      - webnet
+      - flask_app
+    ports:
+      - "5000:5000" # app port
+      - "5001:5001" # app(debug) port
+      - "3000:3000" # remote debugger attach port
 
   postgresdb:
     container_name: postgres_container
