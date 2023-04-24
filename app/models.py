@@ -151,16 +151,14 @@ class Payment(db.Model):
         return f'<Payment {self.id}>'
     
 
-
-
-class UserLocation(db.Model):
-    __tablename__ = 'UserLocation'
+class UserLocations(db.Model):
+    __tablename__ = 'User_Location'
     id = db.Column(db.Integer, primary_key=True)
-    city = db.Column(db.String(64), nullable=False)
     district = db.Column(db.String(50), nullable=False)
     address = db.Column(db.String(50), nullable=False)
     postal_code = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
-        return f'<UserLocation {self.id}>'
+        return f'<UserLocations {self.id}>'
+

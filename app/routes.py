@@ -7,7 +7,7 @@ from google.cloud import storage
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, SellForm, AdminForm
-from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocation
+from app.models import User, Post, Category, Listing, ListingImage, Location, Ad, Payment, UserLocations
 from app.email import send_password_reset_email
 import os
 from werkzeug.utils import secure_filename
@@ -317,17 +317,15 @@ def payment():
         db.session.commit()
         return 'Payment successful!'
     return render_template('payment.html')
-
-@app.route('/UserLocation', methods=['GET', 'POST'])
-def create():
+#-----
+@app.route('/User_Location', methods=['GET', 'POST'])
+def User_Location():
     if request.method == 'POST':
-        city = request.form['city']
         district = request.form['district']
         address = request.form['address']
         postal_code = request.form['postal_code']
-        location = Location(city=city, district=district, address=address, postal_code=postal_code)
-        db.session.add(location)
+        User_Location = UserLocations(district=district, address=address, postal_code=postal_code)
+        db.session.add(User_Location)
         db.session.commit()
         return 'ok!'
     return render_template('UserLocation.html')
-
