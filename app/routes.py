@@ -359,11 +359,6 @@ def review():
             flash('Your review has been submitted!', 'success')
             return redirect(url_for('review'))
     return render_template('review.html.j2', form=form)
-
-@app.route('/product_details/<int:id>', methods=['GET', 'POST'])
-def product_details(id):
-    listing = Listing.query.get(id)
-    return render_template('product_details.html.j2', listing=listing, id=id)
 # jonas------
 
 @app.route('/payment', methods=['GET', 'POST'])
