@@ -11,6 +11,7 @@
           rel="stylesheet"
           integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
           crossorigin="anonymous"/>
+    <link href="../static/css/navbars.css" rel="stylesheet"/>
     <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-default fs-4">
         <div class="container-fluid">
             <button class="navbar-toggler"
@@ -51,6 +52,7 @@
                             <a class="dropdown-item" href="#">Computers & Tech</a>
                             <a class="dropdown-item" href="#">Mobile Phones & Gadgets</a>
                             <a class="dropdown-item" href="#">Video Gaming</a>
+                        </div>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle"
@@ -128,6 +130,7 @@
                                      <li>
                                         <a class="dropdown-item"  href="{{ url_for('review') }}">Review User</a> <!-- Alex coding here -->
                                     </li>
+
                                     <li>
                                         <a class="dropdown-item"  href="{{ url_for('logout') }}">Logout</a>
                                     </li>
@@ -138,24 +141,26 @@
                             <a class="btn btn-danger btn-lg fs-4"
                                href="{{ url_for('sell') }}"
                                role="button">Sell</a>
+                        {% if current_user.is_authenticated and current_user.is_admin %}
+                            <a href="{{ url_for('administrator') }}">Admin Panel</a>
+                        {% endif %}
                         </ul>
                     </ul>
-            </nav>
-        {% endblock %}
-        {% block content %}
-            <div class="container">
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
-                    {% endif %}
-                {% endwith %}
-                {# application content needs to be provided in the app_content block #}
-                {% block app_content %}{% endblock %}
-            </div>
-        {% endblock %}
-        {% block scripts %}
-            {{ super() }}
-            {{ moment.include_moment() }}
-            {{ moment.lang(g.locale) }}
-        {% endblock %}
-        
+                </nav>
+            {% endblock %}
+            {% block content %}
+                <div class="container">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    {# application content needs to be provided in the app_content block #}
+                    {% block app_content %}{% endblock %}
+                </div>
+            {% endblock %}
+            {% block scripts %}
+                {{ super() }}
+                {{ moment.include_moment() }}
+                {{ moment.lang(g.locale) }}
+            {% endblock %}

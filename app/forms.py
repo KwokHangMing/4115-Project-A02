@@ -98,3 +98,4 @@ class ReviewForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.seller.choices = [(str(u.id), u.username) for u in User.query.all() if u != current_user]
+
