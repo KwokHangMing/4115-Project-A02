@@ -8,7 +8,10 @@ ENV PYTHONUNBUFFERED 1
 COPY requirements.txt .
 RUN apk add --no-cache --update gcc musl-dev libffi-dev openssl-dev
 RUN python3 -m venv venv
-RUN venv/bin/pip3 install --upgrade pip && venv/bin/pip3 install -r requirements.txt && venv/bin/pip3 install gunicorn
+RUN venv/bin/pip3 install --upgrade pip 
+RUN venv/bin/pip3 uninstall numpy
+RUN venv/bin/pip3 freeze > requirements.txt 
+RUN venv/bin/pip3 install -r requirements.txt && venv/bin/pip3 install gunicorn
 
 COPY app app
 COPY migrations migrations
