@@ -6,7 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SECRET_KEY = os.environ.get("SECRET_KEY") or "you-will-never-guess"
     SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI") or \
-        'postgresql://postgres:postgres@postgresdb:5432/postgres'
+        'postgresql://postgres:postgres@172.31.20.13:5432/postgres'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_PATH = 'gs://cwad_bucket_a02'
     UPLOAD_EXTENSIONS = {'.jpg', '.png'}
