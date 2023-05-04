@@ -21,4 +21,8 @@ p2 = Post(body='my first post!', author=u2)
 db.session.add(p1)
 db.session.add(p2)
 
+new_admin = User(username='admin', email='admin@example.com', is_admin=True)
+new_admin.set_password('password')
+db.session.add(new_admin)
+
 db.session.commit()

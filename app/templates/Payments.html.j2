@@ -1,0 +1,97 @@
+{% extends "base.html.j2" %}
+
+{% block app_content %}
+	<h1>Payment Method</h1>
+	<form method="POST" action="/payment">
+		<label for="owner">Owner:</label>
+		<input type="text" id="owner" name="owner" required><br>
+		<label for="card-number">Card Number:</label>
+		<input type="text" id="card-number" name="card_number" required><br>
+		<label for="cvv">CVV:</label>
+		<input type="text" id="cvv" name="cvv" required maxlength="3"><br>
+		<input type="submit" value="Confirm">
+	</form>
+{% endblock %}
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Poppins', sans-serif;
+		}
+
+		body {
+			width: 100%;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: azure;
+		}
+
+		.container {
+			width: 750px;
+			height: 500px;
+			border: 1px solid;
+			background-color: white;
+			display: flex;
+			flex-direction: column;
+			padding: 40px;
+			justify-content: space-around;
+		}
+
+		.container h1 {
+			text-align: center;
+		}
+
+		.first-row {
+			display: flex;
+		}
+
+		.owner {
+			width: 100%;
+			margin-right: 40px;
+		}
+
+		.input-field {
+			border: 1px solid #999;
+		}
+
+		.input-field input {
+			width: 100%;
+			border: none;
+			outline: none;
+			padding: 10px;
+		}
+
+		.selection {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.selection select {
+			padding: 10px 20px;
+		}
+
+		a {
+			background-color: rgb(253, 252, 253);
+			color: white;
+			text-align: center;
+			text-transform: uppercase;
+			text-decoration: none;
+			padding: 10px;
+			font-size: 18px;
+			transition: 0.5s;
+		}
+
+		a:hover {
+			background-color: dodgerblue;
+		}
+
+		.cards img {
+			width: 100px;
+		}
+	</style>
+
+

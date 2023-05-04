@@ -1,0 +1,30 @@
+{% extends "base.html.j2" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>UserLocation</title>
+        </head>
+        <body>
+            <h1>Locations</h1>
+            <form method="POST" action="/User_Location">
+                <label for="district">district:</label>
+                <input type="text" id="district" name="district" required>
+                <br>
+                <label for="address">address:</label>
+                <input type="text" id="address" name="address" required>
+                <br>
+                <label for="postal_code">postal_code:</label>
+                <input type="text"
+                       id="postal_code"
+                       name="postal_code"
+                       required
+                       maxlength="4">
+                <br>
+                <input type="submit" value="Confirm">
+            </form>
+        </head>
+        <body>
+    </html>
+    {% endblock %}
